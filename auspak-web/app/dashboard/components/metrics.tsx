@@ -25,7 +25,7 @@ export default function Metrics() {
       try {
         const fetchedData = await fetchData('statistics/?token=operator_0');
         console.log('Data received:', fetchedData);
-        setData(fetchedData);
+        setData(fetchedData['data']);
       } catch (error) {
         console.error('Fetching data error:', error);
       }
@@ -38,15 +38,15 @@ export default function Metrics() {
     return <div>Loading...</div>;
   }
   
-  const parcels_delivered = data['data'].parcels_delivered || 0;
-  const parcels_pending = data['data'].parcels_pending || 0;
-  const peak_hours = data['data'].peak_hours || 0;
-  const passenger_transported = data['data'].passenger_transported || 0;
-  const passenger_transit = data['data'].passenger_transit || 0;
-  const capacity_utilization = data['data'].capacity_utilization || 0;
-  const emissions = data['data'].emissions || 0;
-  const customer_retention = data['data'].customer_retention || 0;
-  const parcels_damage = data['data'].parcels_damage || 0;
+  const parcels_delivered = data.parcels_delivered || 0;
+  const parcels_pending = data.parcels_pending || 0;
+  const peak_hours = data.peak_hours || 0;
+  const passenger_transported = data.passenger_transported || 0;
+  const passenger_transit = data.passenger_transit || 0;
+  const capacity_utilization = data.capacity_utilization || 0;
+  const emissions = data.emissions || 0;
+  const customer_retention = data.customer_retention || 0;
+  const parcels_damage = data.parcels_damage || 0;
   
   
   return (
