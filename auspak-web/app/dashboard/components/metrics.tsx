@@ -1,41 +1,178 @@
 "use client"
 
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
+import React, { useEffect, useState } from 'react';
+import fetchData from '../../services/apiService';
 
 export default function Metrics() {
+
+  interface MetricsData {
+    parcels_delivered?: number;
+    parcels_pending?: number;
+    peak_hours?: number;
+    passenger_transported?: number;
+    passenger_transit?: number;
+    capacity_utilization?: number;
+    emissions?: number;
+    customer_retention?: number;
+    parcels_damage?: number;
+  }
+
+  const [data, setData] = useState<MetricsData | null>(null);  
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const fetchedData = await fetchData('statistics/?token=operator_0');
+        console.log('Data received:', fetchedData);
+        setData(fetchedData);
+      } catch (error) {
+        console.error('Fetching data error:', error);
+      }
+    };
+
+    loadData();
+  }, []);
+
+  if (!data) {
+    return <div>Loading...</div>;
+  }
+  
+  const parcels_delivered = data['data'].parcels_delivered || 0;
+  const parcels_pending = data['data'].parcels_pending || 0;
+  const peak_hours = data['data'].peak_hours || 0;
+  const passenger_transported = data['data'].passenger_transported || 0;
+  const passenger_transit = data['data'].passenger_transit || 0;
+  const capacity_utilization = data['data'].capacity_utilization || 0;
+  const emissions = data['data'].emissions || 0;
+  const customer_retention = data['data'].customer_retention || 0;
+  const parcels_damage = data['data'].parcels_damage || 0;
+  
+  
   return (
-      <div id="dashboard-metrics" className="">
-        <div className="text-3xl font-bold">
-          Metrics
+    <div id="dashboard-metrics" className="">
+      <div className="text-3xl font-bold">
+        Metrics
+      </div>
+      <div className="mt-4 mb-8">
+        {/* First row of cards */}
+        <div className="flex justify-between space-x-6 mb-8 flex-wrap">
+          <Card className="w-[350px]">
+            <CardHeader>
+              <CardTitle>Parcels Delivered</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div>{parcels_delivered}</div>
+            </CardContent>
+          </Card>
+  
+          <Card className="w-[350px]">
+            <CardHeader>
+              <CardTitle>Parcels Pending</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div>{parcels_pending}</div>
+            </CardContent>
+          </Card>
+  
+          <Card className="w-[350px]">
+            <CardHeader>
+              <CardTitle>Peak Hours</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div>{peak_hours}</div>
+            </CardContent>
+          </Card>
         </div>
-        <div className="flex justify-between space-x-6 mt-4 mb-8">
+  
+        {/* Second row of cards */}
+        <div className="flex justify-between space-x-6 mb-8 flex-wrap">
           <Card className="w-[350px]">
             <CardHeader>
-              <CardTitle>Saved Distance</CardTitle>
+              <CardTitle>Passengers Transported</CardTitle>
             </CardHeader>
             <CardContent>
-              <div>1</div>
+              <div>{passenger_transported}</div>
             </CardContent>
           </Card>
-
+  
           <Card className="w-[350px]">
-            <CardHeader>
-              <CardTitle>Vehicle Utilization Rate</CardTitle>
+            <CardHeader>  
+              <CardTitle>Passengers in Transit</CardTitle>
             </CardHeader>
             <CardContent>
-              <div>2</div>
+              <div>{passenger_transit}</div>
             </CardContent>
           </Card>
-
+  
           <Card className="w-[350px]">
             <CardHeader>
-              <CardTitle>Average Delivery Time</CardTitle>
+              <CardTitle>Capacity Utilization</CardTitle>
             </CardHeader>
             <CardContent>
-              <div>3</div>
+              <div>{capacity_utilization}</div>
+            </CardContent>
+          </Card>
+        </div>
+
+                {/* Third row of cards */}
+                <div className="flex justify-between space-x-6 mb-8 flex-wrap">
+          <Card className="w-[350px]">
+            <CardHeader>
+              <CardTitle>Emissions Produced</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div>{emissions}</div>
+            </CardContent>
+          </Card>
+  
+          <Card className="w-[350px]">
+            <CardHeader>
+              <CardTitle>Customer Retention Rate</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div>{customer_retention}</div>
+            </CardContent>
+          </Card>
+  
+          <Card className="w-[350px]">
+            <CardHeader>
+              <CardTitle>Parcel Damage Rate</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div>{parcels_damage}</div>
             </CardContent>
           </Card>
         </div>
       </div>
-  )
+    </div>
+  );
+
+
+
 }
+
+
+// function SomeComponent() {
+//   const [data, setData] = useState(null);
+
+//   useEffect(() => {
+//     // Replace 'some-endpoint' with your actual endpoint
+//     fetchData('some-endpoint')
+//       .then(data => setData(data))
+//       .catch(error => console.error('Fetching data error:', error));
+//   }, []);
+
+//   if (!data) {
+//     return <div>Loading...</div>;
+//   }
+
+//   return (
+//     <div>
+//       <h1>Data from FastAPI</h1>
+//       <pre>{}</pre>
+//     </div>
+//   );
+// }
+
+//export default SomeComponent;
