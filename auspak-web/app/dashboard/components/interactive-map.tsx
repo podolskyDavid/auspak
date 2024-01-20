@@ -8,9 +8,6 @@ export default function InteractiveMap() {
           Interactive Map
         </div>
         <div>
-          City-Label
-        </div>
-        <div>
 
         </div>
       </div>
