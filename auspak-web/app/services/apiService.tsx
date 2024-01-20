@@ -1,4 +1,5 @@
-const BASE_URL = 'http://130.162.220.233:8000'; // Replace with your FastAPI server URL
+const BASE_URL = process.env.FASTAPI_URL; // Use the environment variable
+const BASE_URL = 'http://130.162.220.233:8000'; // Use the environment variable
 
 async function fetchData(endpoint: string) {
   const response = await fetch(`${BASE_URL}/${endpoint}`);
