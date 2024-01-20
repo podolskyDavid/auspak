@@ -39,11 +39,11 @@ export default function AuthenticationPage() {
               width={125}
               height={125}
               alt="auspak-name-logo"
-              className="bg-auspak-white rounded-lg p-2"
+              className="rounded-lg p-2"
               style={{ backgroundColor: 'rgba(255, 255, 255, 0.9)' }}
             />
           </div>
-          <div className="relative z-20 mt-auto bg-auspak-white rounded-lg p-4 " style={{ backgroundColor: 'rgba(255, 255, 255, 0.9)' }}>
+          <div className="relative z-20 mt-auto rounded-lg p-4 " style={{ backgroundColor: 'rgba(255, 255, 255, 0.9)' }}>
             <blockquote className="space-y-2">
               <p className="text-lg text-auspak-dark-grey">
                 &ldquo;This library has saved me countless hours of work and
@@ -61,7 +61,7 @@ export default function AuthenticationPage() {
                 Create an account
               </h1>
               <p className="text-sm text-muted-foreground">
-                Enter your email below to create your account
+                Enter your information below to create your account
               </p>
             </div>
             <UserAuthForm />

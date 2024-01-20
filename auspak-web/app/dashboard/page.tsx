@@ -9,25 +9,29 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 
-import { GoogleMap, LoadScript } from '@react-google-maps/api';
+import {GoogleMap, LoadScript} from '@react-google-maps/api';
+import Link from "next/link";
+import Metrics from "@/app/dashboard/components/metrics";
+import InteractiveMap from "@/app/dashboard/components/interactive-map";
+
 const googleMapsApiKey = process.env.PUBLIC_GOOGLE_MAPS_API_KEY;
 
 
-  const mapStyles = {
-    height: "50vh",
-    width: "100%"
-  };
+const mapStyles = {
+  height: "50vh",
+  width: "100%"
+};
 
-  const defaultCenter = {
-    lat: 41.3851, lng: 2.1734
-  }
+const defaultCenter = {
+  lat: 41.3851, lng: 2.1734
+}
 
 
 export default function Dashboard() {
   return (
     <main>
       <div className="flex">
-        <div className="flex flex-col justify-between bg-auspak-green h-screen w-1/4 p-6">
+        <div className="flex flex-col bg-auspak-green h-screen w-1/4 p-6">
           <div id="logo-top" className="flex">
             <Image
               src="/auspak-name-logo.svg"
@@ -39,72 +43,49 @@ export default function Dashboard() {
               beta
             </Badge>
           </div>
-          <div className="">
-            <div className="text-3xl font-bold">
-              John Doe
+          <div id="functionality-list" className="mt-[16.66vh]">
+
+            <div className="pb-6">
+              <div className="text-3xl font-bold">
+                John Doe
+              </div>
+              <div>
+                Regional Logistic Strategist
+              </div>
             </div>
-            <div>
-              Regional Logistic Strategist
+            <div className="">
+              <Link
+                href=""
+                className="hover:underline"
+              >
+                button 1
+              </Link>
+              <br/>
+              <Link
+                href=""
+                className="hover:underline"
+              >
+                button 1
+              </Link>
+              <br/>
+              <Link
+                href=""
+                className="hover:underline"
+              >
+                button 1
+              </Link>
+
             </div>
+
           </div>
-          <div>
+          <div id="bottom-functionality" className="absolute bottom-6">
             3
           </div>
         </div>
-
         <div className="bg-auspak-white h-screen w-3/4 p-6">
-          <div id="dashboard-metrics" className="">
-            <div className="text-3xl font-bold">
-              Metrics
-            </div>
-            <div className="flex justify-between space-x-6 mt-4 mb-8">
-              <Card className="w-[350px]">
-                <CardHeader>
-                  <CardTitle>Saved Distance</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div>1</div>
-                </CardContent>
-              </Card>
-
-              <Card className="w-[350px]">
-                <CardHeader>
-                  <CardTitle>Vehicle Utilization Rate</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div>2</div>
-                </CardContent>
-              </Card>
-
-              <Card className="w-[350px]">
-                <CardHeader>
-                  <CardTitle>Average Delivery Time</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div>3</div>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-
-          <div id="dashboard-map">
-            <div className="flex flex-col">
-              <div className="text-3xl font-bold">
-                Interactive Map
-              </div>
-              <div>
-                City-Label
-              </div>
-              <div>
-
-              </div>
-            </div>
-            <div>
-
-            </div>
-          </div>
+          <Metrics/>
+          <InteractiveMap/>
         </div>
-
       </div>
     </main>
   )
