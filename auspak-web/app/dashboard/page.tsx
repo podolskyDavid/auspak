@@ -15,19 +15,6 @@ import Metrics from "@/app/dashboard/components/metrics";
 import InteractiveMap from "@/app/dashboard/components/interactive-map";
 import Sidebar from "@/components/sidebard/sidebard";
 
-const googleMapsApiKey = process.env.PUBLIC_GOOGLE_MAPS_API_KEY;
-
-
-const mapStyles = {
-  height: "50vh",
-  width: "100%"
-};
-
-const defaultCenter = {
-  lat: 41.3851, lng: 2.1734
-}
-
-
 export default function Dashboard() {
   return (
     <main>
