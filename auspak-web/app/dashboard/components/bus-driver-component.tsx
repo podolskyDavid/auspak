@@ -2,7 +2,7 @@
 
 import {Button} from "@/components/ui/button";
 import React, { useEffect, useState } from "react";
-import fetchData from '../../services/apiService';
+import { fetchData, sendData } from '../../services/apiService';
 
 
 function mapStopEntity(stopEntity: string | undefined): string {

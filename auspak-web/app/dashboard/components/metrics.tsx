@@ -2,7 +2,7 @@
 
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
 import React, { useEffect, useState } from 'react';
-import fetchData from '../../services/apiService';
+import { fetchData } from '../../services/apiService';
 
 export default function Metrics() {
 
