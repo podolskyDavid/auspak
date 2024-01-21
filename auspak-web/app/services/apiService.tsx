@@ -45,11 +45,3 @@ export async function sendData(endpoint: string, params: Record<string, any> | n
   }
   return response.json();
 }
-
-function buildQueryString(params: Record<string, any>): string {
-  const queryString = Object.entries(params)
-    .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
-    .join('&');
-  return queryString;
-}
-
