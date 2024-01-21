@@ -1,6 +1,6 @@
 "use client"
 
-import { GoogleMap, useLoadScript } from '@react-google-maps/api';
+import { GoogleMap, Marker, useLoadScript } from '@react-google-maps/api';
 //import type { NextPage } from 'next';
 //import styles from '../styles/Home.module.css';
 import { useMemo, useState } from 'react';
@@ -9,18 +9,24 @@ import {sendData} from '../../services/apiService';
 
 export default function InteractiveMap() {
 
+  type MarkerType = {
+    position: google.maps.LatLng | google.maps.LatLngLiteral;
+    icon: {
+      url: string;
+      scaledSize: google.maps.Size;
+    };
+  };
+
   const libraries = useMemo(() => ['places'], []);
   const [address, setAddress] = useState('Please select a location');
   const [long, setLong] = useState(0);
   const [lat, setLat] = useState(0);
-
+  const [markers, setMarkers] = useState<MarkerType[]>([]); // Explicitly type the markers state
 
   const mapCenter = useMemo(
     () => ({ lat: 48.1351, lng: 11.5820 }),
     []
   );  
-
-
 
   const mapOptions = useMemo<google.maps.MapOptions>(
     () => ({
@@ -42,30 +48,17 @@ export default function InteractiveMap() {
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault(); // Prevent the default form submit action
-    const formData = new FormData(event.currentTarget);
 
-    const name = formData.get('address') as string;
-    const entity = formData.get('type') as string;
+    const formData = new FormData(event.currentTarget);
 
     const endpoint = "stops/"; // Replace with your actual endpoint
     const params = { "token": "operator_0" }; // Optional query parameters
-
-    // const body = {
-    //   "entity": entity, // Use the entity from the form data
-    //   "lat": lat, // Use the latitude from the map click
-    //   "long": long, // Use the longitude from the map click
-    //   "name": name // Use the name from the form data
-    // };
-
     const body = {
-      "entity": entity,
+      "entity": formData.get('type') as string,
       "lat": lat,
       "long": long,
-      "name": name 
+      "name": formData.get('address') as string 
     };
-
-    console.log(body);
-
 
     try {
       const response = await sendData(endpoint, params, body);
@@ -75,22 +68,28 @@ export default function InteractiveMap() {
     }
   };
 
-
-
   const handleMapClick = async (event: google.maps.MapMouseEvent) => {
     // Get latitude and longitude from the map click event
-    setLat(event.latLng.lat());
-    setLong(event.latLng.lng());
+    if (event.latLng) {
+      setLat(event.latLng.lat());
+      setLong(event.latLng.lng());
+
+      setMarkers([
+        {
+          position: event.latLng,
+          icon: {
+            url: '/box.png', // Path to the image in the public folder
+            scaledSize: new google.maps.Size(30, 30), // Adjust the size as needed
+          },
+        },
+      ]);
+    };
     const geocoder = new google.maps.Geocoder();
-    const latLng = { lat: lat, lng: long };
-    const resp = geocoder.geocode({ location: latLng});
-    const newAddress = (await resp).results[0].formatted_address
+    const resp = await geocoder.geocode({ location: event.latLng});
+    const newAddress = resp.results[0].address_components[1].long_name + " " + resp.results[0].address_components[0].long_name;
     setAddress(newAddress);
-    //console.log(`Latitude: ${lat}, Longitude: ${long}`);
-    //console.log(address);
   };
 
-  //const response = await sendData("",formData);
 
   return (
     <div className={"relative text-2xl"}> {/* Add relative positioning here */}
@@ -105,7 +104,13 @@ export default function InteractiveMap() {
         mapTypeId={google.maps.MapTypeId.ROADMAP}
         mapContainerStyle={{ width: '1200px', height: '800px' }} // Ensure width has 'px'
         onLoad={() => console.log('Map Component Loaded...')}
-      />
+      >
+        {markers.map((marker, index) => (
+        <Marker key={index} position={marker.position} icon={marker.icon} />
+      ))}
+      </GoogleMap>
+
+      
 
       <div className={"absolute top-1/2 left-1/4 transform -translate-y-1/2 p-4"}>
         <form className={"bg-white p-4 rounded shadow-lg"} onSubmit={handleSubmit}>
