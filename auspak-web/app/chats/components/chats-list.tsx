@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/table"
 import {Separator} from "@/components/ui/separator";
 import {List} from "postcss/lib/list";
-import fetchData from "@/app/services/apiService";
+import { fetchData } from "@/app/services/apiService";
 
 interface ChatData {
   id: number;
