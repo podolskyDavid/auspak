@@ -1,7 +1,17 @@
 const BASE_URL = 'http://130.162.220.233:8000'; // Use the environment variable
 
-export async function fetchData(endpoint: string) {
-  const response = await fetch(`${BASE_URL}/${endpoint}`);
+export async function fetchData(endpoint: string, params: Record<string, any> | null = null) {
+  let url: string = `${BASE_URL}/${endpoint}`;
+  if (params) {
+    url += `?${buildQueryString(params)}`
+  }
+  const response = await fetch(url, {
+    method: 'GET',
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
+    }
+  });
   if (!response.ok) {
     throw new Error('Network response was not ok.');
   }
@@ -21,10 +31,10 @@ export async function sendData(endpoint: string, params: Record<string, any> | n
     },
     body: JSON.stringify(body)
   });
-  
   if (!response.ok) {
     throw new Error('Network response was not ok.');
   }
+  return response.json();
 }
 
 
