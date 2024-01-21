@@ -46,17 +46,22 @@ export default function InteractiveMap() {
 
     const name = formData.get('address') as string;
     const entity = formData.get('type') as string;
-    console.log(name);
-    console.log(entity);
 
-    const endpoint = 'stops/'; // Replace with your actual endpoint
-    const params = { token: 'operator_0' }; // Optional query parameters
+    const endpoint = "stops/"; // Replace with your actual endpoint
+    const params = { "token": "operator_0" }; // Optional query parameters
+
+    // const body = {
+    //   "entity": entity, // Use the entity from the form data
+    //   "lat": lat, // Use the latitude from the map click
+    //   "long": long, // Use the longitude from the map click
+    //   "name": name // Use the name from the form data
+    // };
 
     const body = {
-      entity: "passenger_pickup",
-      lat: 0,
-      long: 0,
-      //name: name
+      "entity": entity,
+      "lat": lat,
+      "long": long,
+      "name": name 
     };
 
     console.log(body);

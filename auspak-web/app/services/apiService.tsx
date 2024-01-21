@@ -13,8 +13,14 @@ export async function sendData(endpoint: string, params: Record<string, any> | n
   if (params) {
     url += `?${buildQueryString(params)}`
   }
-  console.log(JSON.stringify(body));
-  const response = await fetch(url, { method: 'POST', headers: { accept: 'application/json', body: JSON.stringify(body)} });
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(body)
+  });
   
   if (!response.ok) {
     throw new Error('Network response was not ok.');
