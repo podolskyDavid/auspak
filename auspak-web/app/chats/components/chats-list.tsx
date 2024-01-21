@@ -98,7 +98,7 @@ const ChatTableCell: React.FC<ChatTableCellProps> = ({chat}) => {
           <div className="text-xl font-bold">
             {chat.name}
           </div>
-          <div className="flex gap-8">
+          <div className="flex gap-8 right-0">
             <div className="font-light">
               {chat.user_type}
             </div>
