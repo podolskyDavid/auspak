@@ -1,3 +1,5 @@
+"use client"
+
 import Image from "next/image";
 import {Badge} from "@/components/ui/badge";
 import Link from "next/link";
@@ -8,12 +10,14 @@ export default function Sidebar() {
     <div className="flex flex-col bg-auspak-green h-screen w-1/4 max-w-80 min-w-64 p-6 justify-between">
       <div>
         <div id="logo-top" className="flex">
-          <Image
-            src="/auspak-name-logo.svg"
-            width={125}
-            height={125}
-            alt="auspak-name-logo"
-          />
+          <Link href="/">
+              <Image
+                src="/auspak-name-logo.svg"
+                width={125}
+                height={125}
+                alt="auspak-name-logo"
+              />
+          </Link>
           <Badge className="ml-2 mt-1.5 mb-1.5 bg-auspak-white text-auspak-dark-grey">
             beta
           </Badge>
@@ -30,19 +34,19 @@ export default function Sidebar() {
           </div>
           <div className="flex flex-col justify-between gap-2 mt-4">
             <Link
-              href=""
+              href="/dashboard"
               className="hover:underline"
             >
               Dashboard
             </Link>
             <Link
-              href=""
+              href="/chats"
               className="hover:underline"
             >
               Chats
             </Link>
             <Link
-              href=""
+              href="/settings"
               className="hover:underline"
             >
               Settings
@@ -51,8 +55,10 @@ export default function Sidebar() {
         </div>
       </div>
       <div id="bottom-functionality" className="flex items-center justify-center">
-        <Button className="mx-auto w-full">
-          Hi
+        <Button asChild className="mx-auto w-full" onClick={() => sessionStorage.removeItem('access_token')}>
+          <Link href="/auth">
+            Logout
+          </Link>
         </Button>
       </div>
     </div>
