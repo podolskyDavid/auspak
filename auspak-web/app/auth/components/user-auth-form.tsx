@@ -9,6 +9,11 @@ import {Button} from "@/components/ui/button"
 import {Input} from "@/components/ui/input"
 import {Label} from "@/components/ui/label"
 
+import { Check, ChevronsUpDown } from "lucide-react"
+
+import {useForm} from "react-hook-form";
+import {zodResolver} from "@hookform/resolvers/zod";
+
 import {
   Form,
   FormControl,
@@ -20,102 +25,338 @@ import {
 } from "@/components/ui/form"
 
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+} from "@/components/ui/command"
 
-interface UserAuthFormProps extends React.HTMLAttributes<HTMLDivElement> {
-}
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
 
-export function UserAuthForm({className, ...props}: UserAuthFormProps) {
+import {useState} from "react";
+
+const roles = [
+  { label: "Passenger", value: "passenger" },
+  { label: "Driver", value: "driver" },
+  { label: "Manager", value: "manager" },
+] as const
+
+const formSchema = z.object({
+  firstName: z.string().min(1, "Name can't be empty").max(50, "Please don't exceed 50 characters"),
+  lastName: z.string().min(1, "Name can't be empty").max(50, "Please don't exceed 50 characters"),
+  email: z.string().email("Please enter a valid email address"),
+  password: z.string().min(8, "Please enter a password that is at least 8 characters long"),
+  role: z.string({
+    required_error: "Please select a role.",
+  }),
+})
+
+interface UserAuthFormProps extends React.HTMLAttributes<HTMLDivElement> {}
+
+export function RegistrationForm({className, ...props}: UserAuthFormProps) {
+
+  const [registrationMessage, setRegistrationMessage] = useState<string>("");
   const [isLoading, setIsLoading] = React.useState<boolean>(false)
 
-  async function onSubmit(event: React.SyntheticEvent) {
-    event.preventDefault()
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      firstName: "",
+      lastName: "",
+      email: "",
+      password: "",
+    }
+  })
+
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    // Registration request
     setIsLoading(true)
+    const registerResponse = await fetch('http://130.162.220.233:8000/auth/register', {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        id: 0,
+        password: values.password,
+        entity: values.role,
+        first_name: values.firstName,
+        last_name: values.lastName,
+        email: values.email
+      })
+    });
+
+    setRegistrationMessage("Registration successful")
+    console.log(registerResponse);
+
+    if (!registerResponse.ok) {
+      const errorData = await registerResponse.json();
+      setRegistrationMessage(errorData.detail);
+      console.error('Registration failed');
+      return;
+    }
+
+    // Login request
+    const loginResponse = await fetch(`http://130.162.220.233:8000/auth/login?email=${values.email}&password=${values.password}`, {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json'
+      }
+    });
+
+    if (!loginResponse.ok) {
+      const errorData = await loginResponse.json();
+      setRegistrationMessage(errorData.detail);
+      console.error('Login failed');
+      return;
+    }
+
+    const loginData = await loginResponse.json();
+
+    // Save access token in session
+    sessionStorage.setItem('access_token', loginData.access_token);
 
     setTimeout(() => {
       setIsLoading(false)
     }, 3000)
+
+    // Redirect to dashboard
+    window.location.href = '/dashboard';
   }
 
   return (
     <div className={cn("grid gap-6", className)} {...props}>
-      <form onSubmit={onSubmit}>
-        <div className="grid gap-2">
-          <div className="grid grid-cols-2 gap-2">
-            <div>
-              <Label className="sr-only" htmlFor="first-name">
-                First name
-              </Label>
-              <Input
-                id="first-name"
-                placeholder="First name"
-                type="text"
-                autoCapitalize="none"
-                autoComplete="given-name"
-                autoCorrect="off"
-                disabled={isLoading}
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)}>
+          <div className="grid gap-2">
+            <div className="grid grid-cols-2 gap-2">
+
+              <FormField
+                control={form.control}
+                name="firstName"
+                render={({field}) => (
+                  <FormItem>
+                    <FormControl>
+                      <Input
+                        disabled={isLoading}
+                        placeholder="First Name" {...field} />
+                    </FormControl>
+                    <FormMessage/>
+                  </FormItem>
+                )}
               />
-            </div>
-            <div>
-              <Label className="sr-only" htmlFor="last-name">
-                Last name
-              </Label>
-              <Input
-                id="last-name"
-                placeholder="Last name"
-                type="text"
-                autoCapitalize="none"
-                autoComplete="family-name"
-                autoCorrect="off"
-                disabled={isLoading}
+
+              <FormField
+                control={form.control}
+                name="lastName"
+                render={({field}) => (
+                  <FormItem>
+                    <FormControl>
+                      <Input
+                        disabled={isLoading}
+                        placeholder="Last Name" {...field} />
+                    </FormControl>
+                    <FormMessage/>
+                  </FormItem>
+                )}
               />
+
             </div>
+
+            <FormField
+              control={form.control}
+              name="email"
+              render={({field}) => (
+                <FormItem>
+                  <FormControl>
+                    <Input
+                      disabled={isLoading}
+                      placeholder="name@example.com" {...field} />
+                  </FormControl>
+                  <FormMessage/>
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="password"
+              render={({field}) => (
+                <FormItem>
+                  <FormControl>
+                    <Input
+                      type="password"
+                      disabled={isLoading}
+                      placeholder="password" {...field} />
+                  </FormControl>
+                  <FormMessage/>
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="role"
+              render={({ field }) => (
+                <FormItem className="flex flex-col">
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          className={cn(
+                            "justify-between",
+                            !field.value && "text-muted-foreground"
+                          )}
+                        >
+                          {field.value
+                            ? roles.find(
+                              (role) => role.value === field.value
+                            )?.label
+                            : "Select a role"}
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="p-0">
+                      <Command>
+                        <CommandInput placeholder="Search role..." />
+                        <CommandEmpty>No role found.</CommandEmpty>
+                        <CommandGroup>
+                          {roles.map((role) => (
+                            <CommandItem
+                              value={role.label}
+                              key={role.value}
+                              onSelect={() => {
+                                form.setValue("role", role.value)
+                              }}
+                            >
+                              <Check
+                                className={cn(
+                                  "mr-2 h-4 w-4",
+                                  role.value === field.value
+                                    ? "opacity-100"
+                                    : "opacity-0"
+                                )}
+                              />
+                              {role.label}
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            {registrationMessage && <div style={{ color: 'red' }}>{registrationMessage}</div>}
+            <Button>
+              Register
+            </Button>
           </div>
+        </form>
+      </Form>
+    </div>
+  )
+}
 
-          <Label className="sr-only" htmlFor="email">
-            Email
-          </Label>
-          <Input
-            id="email"
-            placeholder="name@example.com"
-            type="email"
-            autoCapitalize="none"
-            autoComplete="email"
-            autoCorrect="off"
-            disabled={isLoading}
-          />
+export function LoginForm({className, ...props}: UserAuthFormProps) {
+  const [loginMessage, setLoginMessage] = useState<string>("");
+  const [isLoading, setIsLoading] = React.useState<boolean>(false)
 
-          <Label className="sr-only" htmlFor="password">
-            Password
-          </Label>
-          <Input
-            id="password"
-            placeholder="Password"
-            type="password"
-            autoComplete="current-password"
-            disabled={isLoading}
-          />
+  const formSchema = z.object({
+    email: z.string().email("Please enter a valid email address"),
+    password: z.string().min(8, "Please enter a password that is at least 8 characters long"),
+  })
 
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    }
+  })
 
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    setIsLoading(true)
 
-          <Button disabled={isLoading}>
-            {isLoading && (
-              <Icons.spinner className="mr-2 h-4 w-4 animate-spin"/>
-            )}
-            Register
-          </Button>
-        </div>
-      </form>
-      <div className="relative">
-        <div className="absolute inset-0 flex items-center">
-          <span className="w-full border-t"/>
-        </div>
-      </div>
+    const loginResponse = await fetch(`http://130.162.220.233:8000/auth/login?email=${values.email}&password=${values.password}`, {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json'
+      }
+    });
+
+    if (!loginResponse.ok) {
+      const errorData = await loginResponse.json();
+      setLoginMessage(errorData.detail);
+      console.error('Login failed');
+      return;
+    }
+
+    const loginData = await loginResponse.json();
+
+    sessionStorage.setItem('access_token', loginData.access_token);
+
+    setTimeout(() => {
+      setIsLoading(false)
+    }, 3000)
+
+    window.location.href = '/dashboard';
+  }
+
+  return (
+    <div className={cn("grid gap-6", className)} {...props}>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)}>
+          <div className="grid gap-2">
+            <FormField
+              control={form.control}
+              name="email"
+              render={({field}) => (
+                <FormItem>
+                  <FormControl>
+                    <Input
+                      disabled={isLoading}
+                      placeholder="name@example.com" {...field} />
+                  </FormControl>
+                  <FormMessage/>
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="password"
+              render={({field}) => (
+                <FormItem>
+                  <FormControl>
+                    <Input
+                      type="password"
+                      disabled={isLoading}
+                      placeholder="password" {...field} />
+                  </FormControl>
+                  <FormMessage/>
+                </FormItem>
+              )}
+            />
+
+            {loginMessage && <div style={{ color: 'red' }}>{loginMessage}</div>}
+            <Button>
+              Login
+            </Button>
+          </div>
+        </form>
+      </Form>
     </div>
   )
 }

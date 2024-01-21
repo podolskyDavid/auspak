@@ -1,3 +1,5 @@
+"use client"
+
 import Image from "next/image";
 import {Badge} from "@/components/ui/badge";
 import Link from "next/link";
@@ -53,7 +55,7 @@ export default function Sidebar() {
         </div>
       </div>
       <div id="bottom-functionality" className="flex items-center justify-center">
-        <Button asChild className="mx-auto w-full">
+        <Button asChild className="mx-auto w-full" onClick={() => sessionStorage.removeItem('access_token')}>
           <Link href="/auth">
             Logout
           </Link>
