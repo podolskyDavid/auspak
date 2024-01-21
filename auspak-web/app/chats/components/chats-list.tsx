@@ -1,6 +1,6 @@
 "use client"
 
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 
 import {Button} from "@/components/ui/button";
 
@@ -16,74 +16,15 @@ import {
 } from "@/components/ui/table"
 import {Separator} from "@/components/ui/separator";
 import {List} from "postcss/lib/list";
+import fetchData from "@/app/services/apiService";
 
 interface ChatData {
   id: number;
   name: string;
-  lastMessage: string;
-  location_name: string;
+  last_message: string;
   user_type: string;
   time: string;
 }
-
-const chats = [
-  {
-    id: 1,
-    name: "John Doe",
-    lastMessage: "Hello",
-    location_name: "Berg am Laim",
-    user_type: "Driver",
-    time: "13:20",
-  },
-  {
-    id: 2,
-    name: "Amelia Smith",
-    lastMessage: "When will you arrive?",
-    location_name: "München Ostbahnhof",
-    user_type: "Passenger",
-    time: "12:45",
-  },
-  {
-    id: 3,
-    name: "John Doe",
-    lastMessage: "Hello",
-    location_name: "Berg am Laim",
-    user_type: "Driver",
-    time: "13:20",
-  },
-  {
-    id: 4,
-    name: "Amelia Smith",
-    lastMessage: "When will you arrive?",
-    location_name: "München Ostbahnhof",
-    user_type: "Passenger",
-    time: "12:45",
-  },
-  {
-    id: 5,
-    name: "John Doe",
-    lastMessage: "Hello",
-    location_name: "Berg am Laim",
-    user_type: "Driver",
-    time: "13:20",
-  },
-  {
-    id: 6,
-    name: "Amelia Smith",
-    lastMessage: "When will you arrive?",
-    location_name: "München Ostbahnhof",
-    user_type: "Passenger",
-    time: "12:45",
-  },
-  {
-    id: 7,
-    name: "John Doe",
-    lastMessage: "Hello",
-    location_name: "Berg am Laim",
-    user_type: "Driver",
-    time: "13:20",
-  },
-]
 
 interface ChatTableCellProps {
   chat: ChatData;
@@ -108,7 +49,7 @@ const ChatTableCell: React.FC<ChatTableCellProps> = ({chat}) => {
           </div>
         </div>
         <div className="font-light">
-          {chat.lastMessage}
+          {chat.last_message}
         </div>
       </div>
     </div>
@@ -116,6 +57,29 @@ const ChatTableCell: React.FC<ChatTableCellProps> = ({chat}) => {
 }
 
 export default function ChatsList() {
+
+  const [data, setData] = useState<Array<ChatData> | null>(null);
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const fetchedData = await fetchData('chats/?token=driver_0');
+        console.log('Data received:', fetchedData);
+        setData(fetchedData);
+      } catch (error) {
+        console.error('Fetching data error:', error);
+      }
+    };
+
+    loadData();
+  }, []);
+
+  if (!data) {
+    return <div>Loading...</div>;
+  }
+
+  const chats = data || []
+
   return (
     <div id="chats-list" className="">
       <div id="chats-headline" className="flex justify-between gap-6">
