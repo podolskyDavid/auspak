@@ -8,9 +8,19 @@ export async function fetchData(endpoint: string) {
   return response.json();
 }
 
+function buildQueryString(params: Record<string, any>): string {
+  const queryString = Object.entries(params)
+    .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
+    .join('&');
+  return queryString;
+}
 
-export async function sendData(endpoint: string, body: Record<string, any>) {
-  const response = await fetch(`${BASE_URL}/${endpoint}`, { method: 'POST', headers: { accept: 'application/json', body: JSON.stringify(body) } });
+export async function sendData(endpoint: string, params: Record<string, any> | null = null, body: Record<string, any> | null = null) {
+  let url: string = `${BASE_URL}/${endpoint}`;
+  if (params) {
+    url += `?${buildQueryString(params)}`
+  }
+  const response = await fetch(url, { method: 'POST', headers: { accept: 'application/json', body: JSON.stringify(body) } });
   if (!response.ok) {
     throw new Error('Network response was not ok.');
   }

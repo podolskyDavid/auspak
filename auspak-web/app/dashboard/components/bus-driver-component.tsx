@@ -36,12 +36,15 @@ export default function BusDriverDashboard() {
     long?: number;
   }
 
-  const [data, setData] = useState<BusData | null>(null);  
+  const [data, setData] = useState<BusData | null>(null);
+  const [startBusClicked, setStartBusClicked] = useState(false);
+  const [stopBusClicked, setStopBusClicked] = useState(false);
+  const [nextStopClicked, setNextStopClicked] = useState(false);
 
   useEffect(() => {
     const loadData = async () => {
       try {
-        const fetchedData = await fetchData('bus/list_stops?token=driver_0');
+        const fetchedData = await fetchData('bus/list_stops?token=driver_1');
         console.log('Data received:', fetchedData);
         setData(fetchedData);
       } catch (error) {
@@ -59,6 +62,51 @@ export default function BusDriverDashboard() {
   const current_stop = data.current_stop;
   const next_stops = data.next_stops;
 
+  const handleStartBus = async (bus_id: number) => {
+    try {
+      const endpoint = 'bus/start';
+      const params = { token: 'driver_1' , bus_id: bus_id };
+  
+      // Send POST request
+      await sendData(endpoint, params);
+  
+      // Update state or perform other actions after a successful request
+      setStartBusClicked(true);
+    } catch (error) {
+      console.error('Error sending POST request:', error);
+    }
+  }
+
+  const handleStopBus = async () => {
+    try {
+      const endpoint = 'bus/stop';
+      const params = { token: 'driver_1' };
+  
+      // Send POST request
+      await sendData(endpoint, params);
+  
+      // Update state or perform other actions after a successful request
+      setStopBusClicked(true);
+    } catch (error) {
+      console.error('Error sending POST request:', error);
+    }
+  }
+
+  const handleNextStop = async () => {
+    try {
+      const endpoint = 'bus/next';
+      const params = { token: 'driver_1' };
+  
+      // Send POST request
+      await sendData(endpoint, params);
+  
+      // Update state or perform other actions after a successful request
+      setNextStopClicked(true);
+    } catch (error) {
+      console.error('Error sending POST request:', error);
+    }
+  }
+
   if (!current_stop) {
     return (
       <div id="chats-list" className="">
@@ -67,8 +115,8 @@ export default function BusDriverDashboard() {
             Dashboard
           </div>
           <div className="flex gap-4">
-            <Button className="w-56">
-              Start the bus
+            <Button onClick={() => handleStartBus(100)} disabled={startBusClicked} className="w-56">
+              {startBusClicked ? "Starting the bus..." : "Start the bus"}
             </Button>
           </div>
         </div>
@@ -83,11 +131,11 @@ export default function BusDriverDashboard() {
           Dashboard
         </div>
         <div className="flex gap-4">
-          <Button className="w-56">
-            Next Stop
+          <Button onClick={() => handleNextStop()} disabled={nextStopClicked} className="w-56">
+            {nextStopClicked ? "Moving the bus..." : "Next stop"}
           </Button>
-          <Button className="w-56">
-            Stop the bus
+          <Button onClick={() => handleStopBus()} disabled={stopBusClicked} className="w-56">
+            {stopBusClicked ? "Stopping the bus..." : "Stop the bus"}
           </Button>
         </div>
       </div>
