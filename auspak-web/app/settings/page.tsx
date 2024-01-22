@@ -6,7 +6,6 @@ import { fetchData } from '../services/apiService';
 import React, { useEffect, useState } from 'react';
 import EmptySidebar from "@/components/sidebar/empty-sidebar";
 import PersonalInformation from "./components/personal-information";
-import PasswordForm from "./components/password";
 
 export default function Dashboard() {
   const [token, setToken] = useState<string | null>(null);
@@ -75,7 +74,6 @@ export default function Dashboard() {
         <div className="flex text-bold font-bold text-5xl mt-10 ml-10">Settings</div>
         <div className="flex flex-col p-6 w-full ml-5 ml-5">
           <PersonalInformation token={token!}/>
-          <PasswordForm token={token!}/>
         </div>
         </div>
       </div>
