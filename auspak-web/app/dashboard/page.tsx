@@ -13,7 +13,9 @@ import {
 
 import Link from "next/link";
 import Metrics from "@/app/dashboard/components/metrics";
-import InteractiveMap from "@/app/dashboard/components/interactive-map";
+import InteractiveMapOperator from "@/app/dashboard/components/interactive-map-operator";
+import InteractiveMapDriver from "@/app/dashboard/components/interactive-map-driver";
+import InteractiveMapPassenger from "@/app/dashboard/components/interactive-map-passenger";
 import Sidebar from "@/components/sidebar/sidebar";
 import BusDriverDashboard from "@/app/dashboard/components/bus-driver-component";
 import { fetchData } from '../services/apiService';
@@ -85,13 +87,21 @@ export default function Dashboard() {
         <Sidebar fullName={fullName} userEntity={userEntity.charAt(0).toUpperCase() + userEntity.slice(1)}/>
         <div className="flex flex-col bg-auspak-white h-screen w-screen p-6 gap-6">
           {userEntity === 'manager' ? (
-            <Metrics token={token!}/>
+            <>
+              <Metrics token={token!}/>
+              <InteractiveMapOperator token={token!} />
+            </>
           ) : userEntity === 'driver' ? (
-            <BusDriverDashboard token={token!}/>
+            <>
+              <BusDriverDashboard token={token!}/>
+              <InteractiveMapDriver token={token!}/>
+            </>
           ) : (
-            <BusDriverDashboard token={token!}/>
+            <>
+              {/* <BusDriverDashboard token={token!}/> */}
+              <InteractiveMapPassenger token={token!}/>
+            </>
           )}
-          <InteractiveMap token={token!}/>
         </div>
       </div>
     </main>

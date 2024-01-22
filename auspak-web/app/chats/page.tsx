@@ -1,6 +1,7 @@
 "use client"
 
 import Sidebar from "@/components/sidebar/sidebar";
+import Metrics from "@/app/dashboard/components/metrics";
 import ChatsList from "@/app/chats/components/chats-list";
 import { fetchData } from '../services/apiService';
 import React, { useEffect, useState } from 'react';
