@@ -141,20 +141,19 @@ export default function InteractiveMap({ token }: { token: string }) {
           <Marker key={index} position={marker.position} icon={marker.icon} />
         ))}
       </GoogleMap>
-      
 
-      <div className={"absolute top-1/2 left-1/4 transform -translate-y-1/2 p-4"}>
-        <form className={"bg-white p-4 rounded shadow-lg"} onSubmit={handleSubmit}>
-          <div>
-            <label htmlFor="address">Address</label>
+      
+      <div className={"absolute inset-0 flex justify-center items-center"}>
+        <form className={"bg-auspak-dark-grey p-4 rounded shadow-lg text-center font-pretty"} onSubmit={handleSubmit}>
+          <div className="font-pretty">
+            <label className="font-pretty text-white" htmlFor="address">Address</label>
             <input id="address" name="address" value={address} onChange={(e) => setAddress(e.target.value)} required />
           </div>
           <div>
-            <label htmlFor="type">Type</label>
-            <select id="type" name="type" required>
+            <label className="font-pretty text-white"htmlFor="type">Type</label>
+            <select  id="type" name="type" required>
               <option value="parcel_pickup">Parcel Pickup</option>
               <option value="parcel_dropoff">Parcel Drop Off</option>
-
             </select>
           </div>
           <button type="submit">Save</button>
