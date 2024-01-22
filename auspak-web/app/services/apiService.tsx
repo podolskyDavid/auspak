@@ -1,4 +1,4 @@
-const BASE_URL = 'https://api-auspak.com/'; // Use the environment variable
+const BASE_URL = 'https://api-auspak.com'; // Use the environment variable
 
 export async function fetchData(endpoint: string, params: Record<string, any> | null = null) {
   let url: string = `${BASE_URL}/${endpoint}`;

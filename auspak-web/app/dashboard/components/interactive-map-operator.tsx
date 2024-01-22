@@ -22,7 +22,8 @@ export default function InteractiveMapOperator({ token }: { token: string }) {
   const [lat, setLat] = useState(0);
 
   
-  const [markers, setMarkers] = useState<MarkerType[]>([]);
+  const [stopMarkers, setStopMarkers] = useState<MarkerType[]>([]);
+  const [busMarkers, setBusMarkers] = useState<MarkerType[]>([]);
   const [latest_marker, setLatestMarker] = useState<MarkerType[]>([]);
 
   
@@ -47,7 +48,23 @@ export default function InteractiveMapOperator({ token }: { token: string }) {
             scaledSize: new google.maps.Size(30, 30) // Assuming the same size for all markers
           }
         }));
-        setMarkers(stopMarkersData);
+        setStopMarkers(stopMarkersData);
+      } else {
+        console.error('Error: fetchedMarkers.data is not an array');
+      }
+      const fetchedBusMarkers = fetchedMarkers.buses;
+      if (fetchedBusMarkers) {
+        const busMarkersData = fetchedBusMarkers.map((marker: any) => ({
+          position: {
+            lat: marker.lat,
+            lng: marker.long
+          },
+          icon: {
+            url: '/bus.png', // Assuming the icon is the same for all markers
+            scaledSize: new google.maps.Size(30, 30) // Assuming the same size for all markers
+          }
+        }));
+        setBusMarkers(busMarkersData);
       } else {
         console.error('Error: fetchedMarkers.data is not an array');
       }
@@ -66,6 +83,205 @@ export default function InteractiveMapOperator({ token }: { token: string }) {
       disableDefaultUI: true,
       clickableIcons: false,
       scrollwheel: true,
+      restriction: {
+        latLngBounds: {
+          north: 48.25560092726563,
+          south: 48.01980429314496,
+          east: 11.769519351785643,
+          west: 11.33283319893357,
+        },
+        strictBounds: true,
+      },
+      styles: [
+        {
+          "elementType": "geometry",
+          "stylers": [
+            {
+              "color": "#f5f5f5"
+            }
+          ]
+        },
+        {
+          "elementType": "labels.icon",
+          "stylers": [
+            {
+              "visibility": "off"
+            }
+          ]
+        },
+        {
+          "elementType": "labels.text.fill",
+          "stylers": [
+            {
+              "color": "#616161"
+            }
+          ]
+        },
+        {
+          "elementType": "labels.text.stroke",
+          "stylers": [
+            {
+              "color": "#f5f5f5"
+            }
+          ]
+        },
+        {
+          "featureType": "administrative.land_parcel",
+          "elementType": "labels.text.fill",
+          "stylers": [
+            {
+              "color": "#bdbdbd"
+            }
+          ]
+        },
+        {
+          "featureType": "poi",
+          "elementType": "geometry",
+          "stylers": [
+            {
+              "color": "#eeeeee"
+            }
+          ]
+        },
+        {
+          "featureType": "poi",
+          "elementType": "labels.text.fill",
+          "stylers": [
+            {
+              "color": "#757575"
+            }
+          ]
+        },
+        {
+          "featureType": "poi.business",
+          "stylers": [
+            {
+              "visibility": "off"
+            }
+          ]
+        },
+        {
+          "featureType": "poi.park",
+          "elementType": "geometry",
+          "stylers": [
+            {
+              "color": "#e5e5e5"
+            }
+          ]
+        },
+        {
+          "featureType": "poi.park",
+          "elementType": "labels.text.fill",
+          "stylers": [
+            {
+              "color": "#9e9e9e"
+            }
+          ]
+        },
+        {
+          "featureType": "road",
+          "elementType": "geometry",
+          "stylers": [
+            {
+              "color": "#ffffff"
+            }
+          ]
+        },
+        {
+          "featureType": "road",
+          "elementType": "labels.icon",
+          "stylers": [
+            {
+              "visibility": "off"
+            }
+          ]
+        },
+        {
+          "featureType": "road.arterial",
+          "elementType": "labels.text.fill",
+          "stylers": [
+            {
+              "color": "#757575"
+            }
+          ]
+        },
+        {
+          "featureType": "road.highway",
+          "elementType": "geometry",
+          "stylers": [
+            {
+              "color": "#dadada"
+            }
+          ]
+        },
+        {
+          "featureType": "road.highway",
+          "elementType": "labels.text.fill",
+          "stylers": [
+            {
+              "color": "#616161"
+            }
+          ]
+        },
+        {
+          "featureType": "road.local",
+          "elementType": "labels.text.fill",
+          "stylers": [
+            {
+              "color": "#9e9e9e"
+            }
+          ]
+        },
+        {
+          "featureType": "transit",
+          "stylers": [
+            {
+              "visibility": "off"
+            }
+          ]
+        },
+        {
+          "featureType": "transit.line",
+          "elementType": "geometry",
+          "stylers": [
+            {
+              "color": "#e5e5e5"
+            }
+          ]
+        },
+        {
+          "featureType": "transit.station",
+          "elementType": "geometry",
+          "stylers": [
+            {
+              "color": "#eeeeee"
+            }
+          ]
+        },
+        {
+          "featureType": "water",
+          "elementType": "geometry",
+          "stylers": [
+            {
+              "color": "#c9c9c9"
+            }
+          ]
+        },
+        {
+          "featureType": "water",
+          "elementType": "labels.text.fill",
+          "stylers": [
+            {
+              "color": "#9e9e9e"
+            }
+          ]
+        }
+      ],
+      disableDoubleClickZoom: true,
+      gestureHandling: 'cooperative', // Require two-finger touch gestures
+
+
+
     }),
     []
   );
@@ -84,8 +300,8 @@ export default function InteractiveMapOperator({ token }: { token: string }) {
 
     const formData = new FormData(event.currentTarget);
 
-    const endpoint = "stops/"; // Replace with your actual endpoint
-    const params = { "token": "operator_0" }; // Optional query parameters
+    const endpoint = "stops/";
+    const params = { token: token };
     const body = {
       "entity": formData.get('type') as string,
       "lat": lat,
@@ -133,15 +349,16 @@ export default function InteractiveMapOperator({ token }: { token: string }) {
         mapContainerStyle={{ width: '1200px', height: '800px' }} // Ensure width has 'px'
         onLoad={() => console.log('Map Component Loaded...')}
       >
-        {markers.map((markers, index) => (
+      {stopMarkers.map((markers, index) => (
         <Marker key={index} position={markers.position} icon={markers.icon} />
       ))}
-        {latest_marker.length > 0 && latest_marker.map((marker, index) => (
-          <Marker key={index} position={marker.position} icon={marker.icon} />
-        ))}
+      {busMarkers.map((markers, index) => (
+        <Marker key={index} position={markers.position} icon={markers.icon} />
+      ))}
+      {latest_marker.length > 0 && latest_marker.map((marker, index) => (
+        <Marker key={index} position={marker.position} icon={marker.icon} />
+      ))}
       </GoogleMap>
-
-      
 
       <div className={"absolute top-1/2 left-1/4 transform -translate-y-1/2 p-4"}>
         <form className={"bg-white p-4 rounded shadow-lg"} onSubmit={handleSubmit}>
