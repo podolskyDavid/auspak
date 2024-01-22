@@ -12,10 +12,7 @@ export async function fetchData(endpoint: string, params: Record<string, any> | 
       'Content-Type': 'application/json'
     }
   });
-  if (!response.ok) {
-    throw new Error('Network response was not ok.');
-  }
-  return response.json();
+  return response;
 }
 
 function buildQueryString(params: Record<string, any>): string {
@@ -39,9 +36,5 @@ export async function sendData(endpoint: string, params: Record<string, any> | n
     },
     body: JSON.stringify(body)
   });
-
-  if (!response.ok) {
-    throw new Error('Network response was not ok.');
-  }
-  return response.json();
+  return response;
 }

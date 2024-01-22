@@ -56,23 +56,24 @@ const ChatTableCell: React.FC<ChatTableCellProps> = ({chat}) => {
   )
 }
 
-export default function ChatsList() {
+export default function ChatsList({ token }: { token: string }) {
 
   const [data, setData] = useState<Array<ChatData> | null>(null);
 
   useEffect(() => {
     const loadData = async () => {
-      try {
-        const fetchedData = await fetchData('chats/?token=driver_0');
-        console.log('Data received:', fetchedData);
-        setData(fetchedData);
-      } catch (error) {
-        console.error('Fetching data error:', error);
+      const chatsResponse = await fetchData('chats', { token: token });
+      const chatsData = await chatsResponse.json();
+      if (!chatsResponse.ok) {
+        console.error("Couldn't fetch list of chats:", chatsData);
+        return;
       }
+      console.log('Data received:', chatsData);
+      setData(chatsData);
     };
 
     loadData();
-  }, []);
+  }, [token]);
 
   if (!data) {
     return <div>Loading...</div>;

@@ -22,7 +22,7 @@ function mapStopEntity(stopEntity: string | undefined): string {
 }
 
 
-export default function BusDriverDashboard() {
+export default function BusDriverDashboard({ token }: { token: string }) {
 
   interface BusData {
     current_stop?: StopData;
@@ -43,17 +43,18 @@ export default function BusDriverDashboard() {
 
   useEffect(() => {
     const loadData = async () => {
-      try {
-        const fetchedData = await fetchData('bus/list_stops?token=driver_1');
-        console.log('Data received:', fetchedData);
-        setData(fetchedData);
-      } catch (error) {
-        console.error('Fetching data error:', error);
+      const stopsResponse = await fetchData('bus/list_stops', { token: token });
+      const stopsData = await stopsResponse.json();
+      if (!stopsResponse.ok) {
+        console.error("Couldn't fetch list of stops:", stopsData);
+        return;
       }
+      console.log('Data received:', stopsData);
+      setData(stopsData);
     };
 
     loadData();
-  }, []);
+  }, [token]);
 
   if (!data) {
     return;
@@ -65,7 +66,7 @@ export default function BusDriverDashboard() {
   const handleStartBus = async (bus_id: number) => {
     try {
       const endpoint = 'bus/start';
-      const params = { token: 'driver_1' , bus_id: bus_id };
+      const params = { token: token, bus_id: bus_id };
   
       // Send POST request
       await sendData(endpoint, params);
@@ -80,7 +81,7 @@ export default function BusDriverDashboard() {
   const handleStopBus = async () => {
     try {
       const endpoint = 'bus/stop';
-      const params = { token: 'driver_1' };
+      const params = { token: token };
   
       // Send POST request
       await sendData(endpoint, params);

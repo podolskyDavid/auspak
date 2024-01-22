@@ -2,10 +2,10 @@
 
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
 import React, { useEffect, useState } from 'react';
-import {fetchData} from '../../services/apiService';
+import { fetchData } from '../../services/apiService';
 
 
-export default function Metrics() {
+export default function Metrics({ token }: { token: string }) {
 
   interface MetricsData {
     parcels_delivered?: number;
@@ -23,17 +23,18 @@ export default function Metrics() {
 
   useEffect(() => {
     const loadData = async () => {
-      try {
-        const fetchedData = await fetchData('statistics/?token=operator_0');
-        console.log('Data received:', fetchedData);
-        setData(fetchedData['data']);
-      } catch (error) {
-        console.error('Fetching data error:', error);
+      const statisticsResponse = await fetchData('statistics', { token: token });
+      const statisticsData = await statisticsResponse.json();
+      if (!statisticsResponse.ok) {
+        console.error("Couldn't fetch statistics:", statisticsData);
+        return;
       }
+      console.log('Data received:', statisticsData);
+      setData(statisticsData['data']);
     };
 
     loadData();
-  }, []);
+  }, [token]);
 
   if (!data) {
     return <div>Loading...</div>;
