@@ -1,6 +1,6 @@
 import Sidebar from "@/components/sidebard/sidebard";
 import Metrics from "@/app/dashboard/components/metrics";
-import InteractiveMap from "@/app/dashboard/components/interactive-map";
+import InteractiveMap from "@/app/dashboard/components/interactive-map-operator";
 import ChatsList from "@/app/chats/components/chats-list";
 
 export default function Chats() {

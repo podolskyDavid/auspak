@@ -18,8 +18,7 @@ export default function InteractiveMapDriver() {
       scaledSize: google.maps.Size;
     };
   };
-  const [directionsResponse, setDirectionsResponse] = useState(null);
-  const [address, setAddress] = useState('Please select a location');
+  const [directionsResponse, setDirectionsResponse] = useState<google.maps.DirectionsResult | null>(null);
   const [long, setLong] = useState(0);
   const [lat, setLat] = useState(0);
 
@@ -91,9 +90,9 @@ export default function InteractiveMapDriver() {
         },
         (result, status) => {
           if (status === google.maps.DirectionsStatus.OK) {
-            setDirectionsResponse(result);
+            setDirectionsResponse(result || null);
           } else {
-            console.error(`error fetching directions ${result}`);
+            console.error(`error fetching directions ${status}`);
           }
         }
       );

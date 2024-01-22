@@ -12,8 +12,8 @@ import {
 import Link from "next/link";
 import Metrics from "@/app/dashboard/components/metrics";
 import InteractiveMapOperator from "@/app/dashboard/components/interactive-map-operator";
-import InteractiveMapDriver from "./components/interactive-map-driver";
-import InteractiveMapPassenger from "./components/interactive-map-passenger";
+import InteractiveMapDriver from "@/app/dashboard/components/interactive-map-driver";
+import InteractiveMapPassenger from "@/app/dashboard/components/interactive-map-passenger";
 import Sidebar from "@/components/sidebard/sidebard";
 import BusDriverDashboard from "@/app/dashboard/components/bus-driver-component";
 

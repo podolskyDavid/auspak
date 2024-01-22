@@ -126,7 +126,7 @@ export default function InteractiveMapPassenger() {
       console.error('Error sending data:', error);
     }
     
-    response.then(data => {
+    response?.then(data => {
       const bus_id = data.bus_id;
       console.log('Bus ID:', bus_id);
     }).catch(error => {
