@@ -38,3 +38,20 @@ export async function sendData(endpoint: string, params: Record<string, any> | n
   });
   return response;
 }
+
+export async function updateData(endpoint: string, params: Record<string, any> | null = null, body: Record<string, any> | null = null) {
+  let url: string = `${BASE_URL}/${endpoint}`;
+  if (params) {
+    url += `?${buildQueryString(params)}`
+  }
+  
+  const response = await fetch(url, {
+    method: 'PUT', // Change the method to 'PUT'
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(body)
+  });
+  return response;
+}
