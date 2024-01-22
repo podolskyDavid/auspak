@@ -364,9 +364,9 @@ export default function InteractiveMapDriver({ token }: { token: string }) {
             directions={directionsResponse}
             options={{
               polylineOptions: {
-                strokeColor: '#00bfff',
-                strokeOpacity: 0.8,
-                strokeWeight: 2,
+                strokeColor: '#D9E866',
+                strokeOpacity: 1,
+                strokeWeight: 5,
               },
               markerOptions: {
                 visible: false, // Set to false if you don't want to show default markers
