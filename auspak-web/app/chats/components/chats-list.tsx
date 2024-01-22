@@ -230,8 +230,8 @@ export default function ChatsList({ token }: { token: string }) {
 
               <div className="flex flex-col gap-2 py-4">
                 {filteredUsers ? (
-                  filteredUsers.map((user) => (
-                    <SearchUserCell key={user.first_name} user={user}/>
+                  filteredUsers.map((user, index) => (
+                    <SearchUserCell key={index} user={user}/>
                   ))
                 ) : (
                   <div className="flex flex-col gap-1">
@@ -251,7 +251,7 @@ export default function ChatsList({ token }: { token: string }) {
       <div id="chats-table" className="mt-6">
         {chatData ? (
           chats.map((chat) => (
-            <Link href={`/chats/${chat.id}`}>
+            <Link key={`link-${chat.id}`} href={`/chats/${chat.id}`}>
               <ChatTableCell key={chat.id} chat={chat}/>
             </Link>
           ))
