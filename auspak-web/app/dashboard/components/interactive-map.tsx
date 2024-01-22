@@ -141,6 +141,7 @@ export default function InteractiveMap({ token }: { token: string }) {
           <Marker key={index} position={marker.position} icon={marker.icon} />
         ))}
       </GoogleMap>
+
       
 
       <div className={"absolute top-1/2 left-1/4 transform -translate-y-1/2 p-4"}>
