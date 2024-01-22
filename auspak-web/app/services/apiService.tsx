@@ -1,4 +1,4 @@
-const BASE_URL = 'https://157.230.105.218'; // Use the environment variable
+const BASE_URL = 'https://api-auspak.com/'; // Use the environment variable
 
 export async function fetchData(endpoint: string, params: Record<string, any> | null = null) {
   let url: string = `${BASE_URL}/${endpoint}`;
@@ -30,6 +30,23 @@ export async function sendData(endpoint: string, params: Record<string, any> | n
   
   const response = await fetch(url, {
     method: 'POST',
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(body)
+  });
+  return response;
+}
+
+export async function updateData(endpoint: string, params: Record<string, any> | null = null, body: Record<string, any> | null = null) {
+  let url: string = `${BASE_URL}/${endpoint}`;
+  if (params) {
+    url += `?${buildQueryString(params)}`
+  }
+  
+  const response = await fetch(url, {
+    method: 'PUT', // Change the method to 'PUT'
     headers: {
       'Accept': 'application/json',
       'Content-Type': 'application/json'

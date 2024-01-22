@@ -1,6 +1,6 @@
 "use client"
 
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import {fetchData} from "@/app/services/apiService";
 import Sidebar from "@/components/sidebar/sidebar";
 import {Skeleton} from "@/components/ui/skeleton";
@@ -16,18 +16,18 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
+import {zodResolver} from "@hookform/resolvers/zod"
+import {useForm} from "react-hook-form"
 import * as z from "zod"
 
 const FormSchema = z.object({
-  bio: z
+  chatMessage: z
     .string()
-    .min(10, {
-      message: "Bio must be at least 10 characters.",
+    .min(1, {
+      message: "The message must not be empty.",
     })
-    .max(160, {
-      message: "Bio must not be longer than 30 characters.",
+    .max(300, {
+      message: "The message must not be longer than 300 characters.",
     }),
 })
 
@@ -36,13 +36,33 @@ interface Chat {
   chat_id: number;
   created_at: string;
   id: number;
-  sender_id: number;
+  sender_id: boolean;
   text: string;
 }
 
-const tags = Array.from({length: 50}).map(
-  (_, i, a) => `v1.2.0-beta.${a.length - i}`
-)
+interface UserChatCellProps {
+  chat: Chat;
+  isSender: boolean;
+}
+
+const UserChatCell: React.FC<UserChatCellProps> = ({chat, isSender}) => {
+  return (
+    <div className={`flex flex-col ${isSender ? 'ml-auto w-1/2 max-w-80' : 'w-1/2 max-w-80'} gap-1`}>
+      <div className={`p-2 rounded-md ${isSender ? 'bg-auspak-green' : 'bg-auspak-light-grey'} text-md`}>
+        {chat.text}
+      </div>
+      <div className={`text-xs ${isSender ? 'ml-auto' : ''}`}>
+        {new Date(chat.created_at).toLocaleString('en-GB', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        }).replace(/\//g, '.')}
+      </div>
+    </div>
+  )
+}
 
 export default function ChatInterface({params}: { params: { chatId: string } }) {
 
@@ -50,7 +70,7 @@ export default function ChatInterface({params}: { params: { chatId: string } }) 
   const [isLoading, setIsLoading] = React.useState<boolean>(true)
   const [fullName, setFullName] = useState<string>('');
   const [userEntity, setUserEntity] = useState<string>('');
-  const [chatHistoryData, setChatHistoryData] = useState<any>(null);
+  const [chatHistoryData, setChatHistoryData] = useState<Chat[]>([]);
 
 
   useEffect(() => {
@@ -109,11 +129,48 @@ export default function ChatInterface({params}: { params: { chatId: string } }) 
 
   }, [token]);
 
+  const ws = useRef<WebSocket | null>(null);
+
+  useEffect(() => {
+    if (token) { // Only run this effect if the token is not null
+      // Replace with your actual server URL and chat ID
+      ws.current = new WebSocket(`ws://207.154.198.36:8000/chats/${params.chatId}?token=${token}`);
+
+      ws.current.onopen = () => {
+        console.log('ws opened');
+      };
+
+      ws.current.onclose = () => {
+        console.log('ws closed');
+        // Reopen the WebSocket after a delay
+        setTimeout(() => {
+          ws.current = new WebSocket(`ws://207.154.198.36:8000/chats/${params.chatId}?token=${token}`);
+        }, 1000); // 1 second delay
+      };
+
+      ws.current.onmessage = (e) => {
+        // Parse the incoming message
+        const message: Chat = JSON.parse(e.data);
+        // Update your chat state here
+        setChatHistoryData(prevChatHistory => [...prevChatHistory, message]);
+      };
+
+      return () => {
+        // Close the WebSocket connection when the component unmounts
+        ws.current?.close();
+      };
+    }
+  }, [token]);
+
+
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
   })
 
   function onSubmit(data: z.infer<typeof FormSchema>) {
+    if (ws.current?.readyState === WebSocket.OPEN) {
+      ws.current.send(data.chatMessage);
+    }
     console.log("Sent message:", data)
   }
 
@@ -124,57 +181,44 @@ export default function ChatInterface({params}: { params: { chatId: string } }) 
         <Sidebar fullName={fullName} userEntity={userEntity.charAt(0).toUpperCase() + userEntity.slice(1)}/>
         <div className="bg-auspak-white h-screen w-screen gap-4 p-6 flex flex-col justify-between">
           <div className="text-3xl font-bold">
-            Chat {params.chatId}
+            Chat with {params.chatId}
           </div>
 
-          <div className="flex-col">
-
-            {isLoading ? (
-              <div className="flex flex-col gap-1">
-                <Skeleton className="w-[100px] h-[20px] rounded-full bg-auspak-dark-grey"/>
-                <Skeleton className="w-[300px] h-[20px] rounded-full bg-auspak-dark-grey"/>
-              </div>
-            ) : (
-              chatHistoryData && chatHistoryData.map((chat: Chat, index: number) => (
-                <div key={index}>
-
-
-                  <p>Chat ID: {chat.chat_id}</p>
-                  <p>Created at: {chat.created_at}</p>
-                  <p>ID: {chat.id}</p>
-                  <p>Sender ID: {chat.sender_id}</p>
-                  <p>Text: {chat.text}</p>
+          <div className="flex flex-col gap-4 max-h-full overflow-y-auto">
+            <div className="flex flex-col gap-4 max-h-full overflow-y-auto">
+              {isLoading ? (
+                <div className="flex flex-col gap-1">
+                  <Skeleton className="w-[100px] h-[20px] rounded-full bg-auspak-dark-grey"/>
+                  <Skeleton className="w-[300px] h-[20px] rounded-full bg-auspak-dark-grey"/>
                 </div>
-              ))
-            )}
+              ) : (
+                chatHistoryData.map((chat, index) => (
+                  <UserChatCell key={index} chat={chat} isSender={chat.sender_id}/>
+                ))
+              )}
+            </div>
 
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="w-2/3 space-y-6">
+              <form onSubmit={form.handleSubmit(onSubmit)} className="w-full space-y-6">
                 <FormField
                   control={form.control}
-                  name="bio"
-                  render={({ field }) => (
+                  name="chatMessage"
+                  render={({field}) => (
                     <FormItem>
-                      <FormLabel>Bio</FormLabel>
                       <FormControl>
                         <Textarea
-                          placeholder="Tell us a little bit about yourself"
+                          placeholder="Type your message here..."
                           className="resize-none"
                           {...field}
                         />
                       </FormControl>
-                      <FormDescription>
-                        You can <span>@mention</span> other users and organizations.
-                      </FormDescription>
-                      <FormMessage />
+                      <FormMessage/>
                     </FormItem>
                   )}
                 />
                 <Button type="submit">Submit</Button>
               </form>
             </Form>
-
-
           </div>
         </div>
       </div>
