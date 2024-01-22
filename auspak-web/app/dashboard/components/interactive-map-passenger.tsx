@@ -24,6 +24,8 @@ export default function InteractiveMapPassenger({ token }: { token: string }) {
   const [long, setLong] = useState(0);
   const [lat, setLat] = useState(0);
   const [buttonClicked, setButtonClicked] = useState(false);
+  const [busNumber, setBusNumber] = useState<number | null>(null);
+  const [busStarted, setBusStarted] = useState(false);
 
   
   const [passenger_marker, setPassengerMarker] = useState<MarkerType[]>([]);
@@ -41,6 +43,12 @@ export default function InteractiveMapPassenger({ token }: { token: string }) {
       }
       console.log('Markers received:', fetchedMarkers);
       const fetchedBusMarkers = fetchedMarkers.buses;
+      if (fetchedBusMarkers.length > 0) {
+        setBusNumber(fetchedBusMarkers[0].bus_id);
+        if (fetchedBusMarkers[0].lat) {
+          setBusStarted(true);
+        }
+      }
       if (fetchedBusMarkers) {
         const busMarkersData = fetchedBusMarkers.map((marker: any) => ({
           position: {
@@ -144,7 +152,19 @@ export default function InteractiveMapPassenger({ token }: { token: string }) {
     // Add any additional logic you want to execute when the button is clicked
   };
   return (
-    <div className={"relative text-2xl"}> {/* Add relative positioning here */}
+    <div className="relative text-2xl"> {/* Add relative positioning here */}
+      <div id="passenger-headline" className="flex justify-between gap-6">
+        <div className="text-3xl font-bold">
+          Dashboard
+        </div>
+      </div>
+      <div className="text-2xl font-bold">
+        {busNumber != null ? (
+        <p>{`Bus ${busNumber} ${busStarted ? 'is' : 'will soon be'} on its way`}</p>
+        ) : (
+          <p>{`Select location and request pickup`}</p>
+        )}
+      </div>
       <GoogleMap
         onClick={handleMapClick} // Add the onClick event handler here
         options={mapOptions}
@@ -154,27 +174,25 @@ export default function InteractiveMapPassenger({ token }: { token: string }) {
         mapContainerStyle={{ width: '1200px', height: '800px' }} // Ensure width has 'px'
         onLoad={() => console.log('Map Component Loaded...')}
       >
-        {passenger_marker.map((marker, index) => (
-        <Marker key={index} position={marker.position} icon={marker.icon} />
-      ))}
+        {passenger_marker.map((marker, index) => ( busNumber == null && 
+          <Marker key={index} position={marker.position} icon={marker.icon} />
+        ))}
         {bus_marker.length > 0 && bus_marker.map((marker, index) => (
           <Marker key={index} position={marker.position} icon={marker.icon} />
         ))}
       </GoogleMap>
-
-
-
-      <button
-        className="absolute top-1/2 left-1/2 z-10 flex flex-col mt-4 mb-4 gap-4 min-w-96 transform -translate-x-1/2 -translate-y-1/2 bg-auspak-dark-grey text-white p-2"
-        onClick={handleButton}
-        disabled={buttonClicked}
-        style={{ margin: '10px' }}>
+      {busNumber == null && (
+        <button
+          className="absolute top-1/2 left-1/2 z-10 flex flex-col mt-4 mb-4 gap-4 min-w-96 transform -translate-x-1/2 -translate-y-1/2 bg-auspak-dark-grey text-white p-2"
+          onClick={handleButton}
+          disabled={buttonClicked}
+          style={{ margin: '10px' }}>
           <div className="text-2xl font-bold">
             Order Bus
           </div>
-      </button>
-
+        </button>
+      )}
     </div>
-  );
+  );  
 };
 
