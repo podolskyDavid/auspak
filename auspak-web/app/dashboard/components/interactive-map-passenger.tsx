@@ -25,6 +25,7 @@ export default function InteractiveMapPassenger({ token }: { token: string }) {
   const [lat, setLat] = useState(0);
   const [buttonClicked, setButtonClicked] = useState(false);
   const [busNumber, setBusNumber] = useState<number | null>(null);
+  const [busStarted, setBusStarted] = useState(false);
 
   
   const [passenger_marker, setPassengerMarker] = useState<MarkerType[]>([]);
@@ -44,6 +45,9 @@ export default function InteractiveMapPassenger({ token }: { token: string }) {
       const fetchedBusMarkers = fetchedMarkers.buses;
       if (fetchedBusMarkers.length > 0) {
         setBusNumber(fetchedBusMarkers[0].bus_id);
+        if (fetchedBusMarkers[0].lat) {
+          setBusStarted(true);
+        }
       }
       if (fetchedBusMarkers) {
         const busMarkersData = fetchedBusMarkers.map((marker: any) => ({
@@ -156,7 +160,7 @@ export default function InteractiveMapPassenger({ token }: { token: string }) {
       </div>
       <div className="text-2xl font-bold">
         {busNumber != null ? (
-        <p>{`Bus ${busNumber} is on the way`}</p>
+        <p>{`Bus ${busNumber} ${busStarted ? 'is' : 'will soon be'} on its way`}</p>
         ) : (
           <p>{`Select location and request pickup`}</p>
         )}
