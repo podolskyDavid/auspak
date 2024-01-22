@@ -108,7 +108,7 @@ export default function Dashboard() {
           ) : (
             <BusDriverDashboard token={token!}/>
           )}
-          <InteractiveMap/>
+          <InteractiveMap token={token!}/>
         </div>
       </div>
     </main>
