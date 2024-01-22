@@ -141,7 +141,6 @@ export default function InteractiveMap({ token }: { token: string }) {
           <Marker key={index} position={marker.position} icon={marker.icon} />
         ))}
       </GoogleMap>
-
       
       <div className={"absolute inset-0 flex justify-center items-center"}>
         <form className={"bg-auspak-dark-grey p-4 rounded shadow-lg text-center font-pretty"} onSubmit={handleSubmit}>
