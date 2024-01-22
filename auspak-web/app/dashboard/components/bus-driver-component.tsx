@@ -96,7 +96,7 @@ export default function BusDriverDashboard({ token }: { token: string }) {
   const handleNextStop = async () => {
     try {
       const endpoint = 'bus/next';
-      const params = { token: 'driver_1' };
+      const params = { token: token };
   
       // Send POST request
       await sendData(endpoint, params);
