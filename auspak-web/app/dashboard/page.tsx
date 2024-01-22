@@ -14,10 +14,11 @@ import {
 import Link from "next/link";
 import Metrics from "@/app/dashboard/components/metrics";
 import InteractiveMap from "@/app/dashboard/components/interactive-map";
-import Sidebar from "@/components/sidebard/sidebard";
+import Sidebar from "@/components/sidebar/sidebar";
 import BusDriverDashboard from "@/app/dashboard/components/bus-driver-component";
 import { fetchData } from '../services/apiService';
 import React, { useEffect, useState } from 'react';
+import EmptySidebar from "@/components/sidebar/empty-sidebar";
 
 export default function Dashboard() {
   const [token, setToken] = useState<string | null>(null);
@@ -75,25 +76,7 @@ export default function Dashboard() {
 
   // // Render content conditionally based on loading state
   if (isLoading) {
-    return (
-      <div className="flex flex-col bg-auspak-green h-screen w-1/4 max-w-80 min-w-64 p-6 justify-between">
-      <div>
-        <div id="logo-top" className="flex">
-          <Link href="/">
-              <Image
-                src="/auspak-name-logo.svg"
-                width={125}
-                height={125}
-                alt="auspak-name-logo"
-              />
-          </Link>
-          <Badge className="ml-2 mt-1.5 mb-1.5 bg-auspak-white text-auspak-dark-grey">
-            beta
-          </Badge>
-        </div>
-      </div>
-    </div>
-    )
+    return (<EmptySidebar />)
   }
 
   return (
