@@ -137,7 +137,7 @@ export default function ChatInterface({params}: { params: { chatId: string } }) 
   useEffect(() => {
     if (token) { // Only run this effect if the token is not null
       // Replace with your actual server URL and chat ID
-      ws.current = new WebSocket(`ws://207.154.198.36:8000/chats/${params.chatId}?token=${encodeURIComponent(token)}`);
+      ws.current = new WebSocket(`wss://api-auspak.com/chats/${params.chatId}?token=${encodeURIComponent(token)}`);
 
       ws.current.onopen = () => {
         console.log('ws opened');
@@ -147,7 +147,7 @@ export default function ChatInterface({params}: { params: { chatId: string } }) 
         console.log('ws closed');
         // Reopen the WebSocket after a delay
         setTimeout(() => {
-          ws.current = new WebSocket(`ws://207.154.198.36:8000/chats/${params.chatId}?token=${encodeURIComponent(token)}`);
+          ws.current = new WebSocket(`wss://api-auspak.com/chats/${params.chatId}?token=${encodeURIComponent(token)}`);
         }, 1000); // 1 second delay
       };
 

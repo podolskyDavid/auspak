@@ -326,14 +326,14 @@ export default function InteractiveMapDriver({ token }: { token: string }) {
   const path = stopMarkers.map(marker => marker.position);
 
   return (
-    <div className={"relative text-2xl"}> {/* Add relative positioning here */}
+    <div className="relative text-2xl overflow-auto flex items-center justify-center"> {/* Add relative positioning here */}
       {/* ... other code ... */}
       <GoogleMap
         options={mapOptions}
         zoom={14}
         center={mapCenter} 
         mapTypeId={google.maps.MapTypeId.ROADMAP}
-        mapContainerStyle={{ width: '1200px', height: '800px' }} // Ensure width has 'px'
+        mapContainerStyle={{ width: '1200px', height: '1200px' }} // Ensure width has 'px'
         onLoad={() => console.log('Map Component Loaded...')}
       >
         {stopMarkers.map((marker, index) => (
