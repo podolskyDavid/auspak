@@ -1,6 +1,6 @@
 "use client"
 
-import { GoogleMap, Marker, useLoadScript } from '@react-google-maps/api';
+import { GoogleMap, Marker, useLoadScript, DirectionsRenderer } from '@react-google-maps/api';
 //import type { NextPage } from 'next';
 //import styles from '../styles/Home.module.css';
 import { useEffect, useMemo, useState } from 'react';
@@ -30,7 +30,10 @@ export default function InteractiveMapPassenger({ token }: { token: string }) {
   
   const [passenger_marker, setPassengerMarker] = useState<MarkerType[]>([]);
 
-  const [bus_marker, setBusMarker] = useState<MarkerType[]>([]);
+  const [busMarkers, setBusMarkers] = useState<MarkerType[]>([]);
+  const [stopMarkers, setStopMarkers] = useState<MarkerType[]>([]);
+
+  const [directionsResponse, setDirectionsResponse] = useState<google.maps.DirectionsResult | null>(null);
 
 
   useEffect(() => {
@@ -43,13 +46,13 @@ export default function InteractiveMapPassenger({ token }: { token: string }) {
       }
       console.log('Markers received:', fetchedMarkers);
       const fetchedBusMarkers = fetchedMarkers.buses;
-      if (fetchedBusMarkers.length > 0) {
-        setBusNumber(fetchedBusMarkers[0].bus_id);
-        if (fetchedBusMarkers[0].lat) {
-          setBusStarted(true);
-        }
-      }
       if (fetchedBusMarkers) {
+        if (fetchedBusMarkers.length > 0) {
+          setBusNumber(fetchedBusMarkers[0].bus_id);
+          if (fetchedBusMarkers[0].lat) {
+            setBusStarted(true);
+          }
+        }
         const busMarkersData = fetchedBusMarkers.map((marker: any) => ({
           position: {
             lat: marker.lat,
@@ -60,9 +63,27 @@ export default function InteractiveMapPassenger({ token }: { token: string }) {
             scaledSize: new google.maps.Size(30, 30) // Assuming the same size for all bus markers
           }
         }));
-        setBusMarker(busMarkersData);
+        setBusMarkers(busMarkersData);
       } else {
         console.error('Error: fetchedBusMarkers.data is not an array');
+      }
+      const fetchedStopMarkers = fetchedMarkers.stops;
+      if (fetchedStopMarkers) {
+        const stopMarkersData = fetchedStopMarkers.map((marker: any) => ({
+          position: {
+            lat: marker.lat,
+            lng: marker.long
+          },
+          icon: {
+            url: (marker.entity == 'static' ? '/bus-stop.png'
+              : marker.entity == 'passenger_pickup' ? '/hail.png'
+              : 'box.png'),
+            scaledSize: new google.maps.Size(30, 30)
+          }
+        }));
+        setStopMarkers(stopMarkersData);
+      } else {
+        console.error('Error: fetchedStopMarkers is not an array');
       }
     };
     loadBusMarkers();
@@ -88,6 +109,33 @@ export default function InteractiveMapPassenger({ token }: { token: string }) {
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY as any,
     libraries: libraries as any,
   });
+
+  useEffect(() => {
+    if (isLoaded) {
+    const directionsService = new google.maps.DirectionsService();
+    const origin = stopMarkers[0]?.position; // Assuming the first marker is the start
+    const destination = stopMarkers[stopMarkers.length - 1]?.position; // Assuming the last marker is the end
+
+    if (origin && destination) {
+      directionsService.route(
+        {
+          origin: origin,
+          destination: destination,
+          travelMode: google.maps.TravelMode.DRIVING,
+          waypoints: stopMarkers.slice(1, -1).map(marker => ({ location: marker.position, stopover: true })),
+          optimizeWaypoints: true,
+        },
+        (result, status) => {
+          if (status === google.maps.DirectionsStatus.OK) {
+            setDirectionsResponse(result || null);
+          } else {
+            console.error(`error fetching directions ${status}`);
+          }
+        }
+      );
+    }
+  }
+  }, [isLoaded, stopMarkers]);
 
   if (!isLoaded) {
     return <p>Loading...</p>;
@@ -177,9 +225,27 @@ export default function InteractiveMapPassenger({ token }: { token: string }) {
         {passenger_marker.map((marker, index) => ( busNumber == null && 
           <Marker key={index} position={marker.position} icon={marker.icon} />
         ))}
-        {bus_marker.length > 0 && bus_marker.map((marker, index) => (
+        {busMarkers.length > 0 && busMarkers.map((marker, index) => (
           <Marker key={index} position={marker.position} icon={marker.icon} />
         ))}
+        {stopMarkers.length > 0 && stopMarkers.map((marker, index) => (
+          <Marker key={index} position={marker.position} icon={marker.icon} />
+        ))}
+        {directionsResponse && (
+          <DirectionsRenderer
+            directions={directionsResponse}
+            options={{
+              polylineOptions: {
+                strokeColor: '#00bfff',
+                strokeOpacity: 0.8,
+                strokeWeight: 2,
+              },
+              markerOptions: {
+                visible: false, // Set to false if you don't want to show default markers
+              },
+            }}
+          />
+        )}
       </GoogleMap>
       {busNumber == null && (
         <button

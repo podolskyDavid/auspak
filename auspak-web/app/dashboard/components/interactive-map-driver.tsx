@@ -23,8 +23,8 @@ export default function InteractiveMapDriver({ token }: { token: string }) {
   const [lat, setLat] = useState(0);
 
   
-  const [stop_markers, setStopMarker] = useState<MarkerType[]>([]);
-  const [driver_marker, setDriverMarker] = useState<MarkerType[]>([]);
+  const [stopMarkers, setStopMarkers] = useState<MarkerType[]>([]);
+  const [busMarkers, setBusMarkers] = useState<MarkerType[]>([]);
 
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY as any,
@@ -41,6 +41,22 @@ export default function InteractiveMapDriver({ token }: { token: string }) {
         return;
       }
       console.log('Markers received:', fetchedMarkers);
+      const fetchedBusMarkers = fetchedMarkers.buses;
+      if (fetchedBusMarkers) {
+        const busMarkersData = fetchedBusMarkers.map((marker: any) => ({
+          position: {
+            lat: marker.lat,
+            lng: marker.long
+          },
+          icon: {
+            url: '/bus.png',
+            scaledSize: new google.maps.Size(35, 35)
+          }
+        }));
+        setBusMarkers(busMarkersData);
+      } else {
+        console.error('Error: fetchedBusMarkers is not an array');
+      }
       const fetchedStopMarkers = fetchedMarkers.stops;
       if (fetchedStopMarkers) {
         const stopMarkersData = fetchedStopMarkers.map((marker: any) => ({
@@ -49,13 +65,15 @@ export default function InteractiveMapDriver({ token }: { token: string }) {
             lng: marker.long
           },
           icon: {
-            url: '/bus-stop.png', // Assuming the icon is the same for all markers
-            scaledSize: new google.maps.Size(30, 30) // Assuming the same size for all markers
+            url: (marker.entity == 'static' ? '/bus-stop.png'
+              : marker.entity == 'passenger_pickup' ? '/hail.png'
+              : 'box.png'),
+            scaledSize: new google.maps.Size(30, 30)
           }
         }));
-        setStopMarker(stopMarkersData);
+        setStopMarkers(stopMarkersData);
       } else {
-        console.error('Error: fetchedMarkers.data is not an array');
+        console.error('Error: fetchedStopMarkers is not an array');
       }
     };
     loadData();
@@ -78,8 +96,8 @@ export default function InteractiveMapDriver({ token }: { token: string }) {
   useEffect(() => {
     if (isLoaded) {
     const directionsService = new google.maps.DirectionsService();
-    const origin = stop_markers[0]?.position; // Assuming the first marker is the start
-    const destination = stop_markers[stop_markers.length - 1]?.position; // Assuming the last marker is the end
+    const origin = stopMarkers[0]?.position; // Assuming the first marker is the start
+    const destination = stopMarkers[stopMarkers.length - 1]?.position; // Assuming the last marker is the end
 
     if (origin && destination) {
       directionsService.route(
@@ -87,7 +105,7 @@ export default function InteractiveMapDriver({ token }: { token: string }) {
           origin: origin,
           destination: destination,
           travelMode: google.maps.TravelMode.DRIVING,
-          waypoints: stop_markers.slice(1, -1).map(marker => ({ location: marker.position, stopover: true })),
+          waypoints: stopMarkers.slice(1, -1).map(marker => ({ location: marker.position, stopover: true })),
           optimizeWaypoints: true,
         },
         (result, status) => {
@@ -100,13 +118,13 @@ export default function InteractiveMapDriver({ token }: { token: string }) {
       );
     }
   }
-  }, [isLoaded, stop_markers]);
+  }, [isLoaded, stopMarkers]);
 
   if (!isLoaded) {
     return <p>Loading...</p>;
   }
 
-  const path = stop_markers.map(marker => marker.position);
+  const path = stopMarkers.map(marker => marker.position);
 
   return (
     <div className={"relative text-2xl"}> {/* Add relative positioning here */}
@@ -119,7 +137,10 @@ export default function InteractiveMapDriver({ token }: { token: string }) {
         mapContainerStyle={{ width: '1200px', height: '800px' }} // Ensure width has 'px'
         onLoad={() => console.log('Map Component Loaded...')}
       >
-        {stop_markers.map((marker, index) => (
+        {stopMarkers.map((marker, index) => (
+          <Marker key={index} position={marker.position} icon={marker.icon} />
+        ))}
+        {busMarkers.map((marker, index) => (
           <Marker key={index} position={marker.position} icon={marker.icon} />
         ))}
         {/* <Polyline
@@ -144,7 +165,7 @@ export default function InteractiveMapDriver({ token }: { token: string }) {
             directions={directionsResponse}
             options={{
               polylineOptions: {
-                strokeColor: '#FF0000',
+                strokeColor: '#00bfff',
                 strokeOpacity: 0.8,
                 strokeWeight: 2,
               },
