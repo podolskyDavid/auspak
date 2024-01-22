@@ -1,14 +1,12 @@
 "use client"
 
 import { GoogleMap, Marker, useLoadScript } from '@react-google-maps/api';
-//import type { NextPage } from 'next';
-//import styles from '../styles/Home.module.css';
 import { useEffect, useMemo, useState } from 'react';
 import {sendData, fetchData} from '../../services/apiService';
 import { ShowerHead } from 'lucide-react';
 
 
-export default function InteractiveMap() {
+export default function InteractiveMapOperator() {
 
   type MarkerType = {
     position: google.maps.LatLng | google.maps.LatLngLiteral;
@@ -124,9 +122,6 @@ export default function InteractiveMap() {
 
   return (
     <div className={"relative text-2xl"}> {/* Add relative positioning here */}
-      <div className={"text-2xl"}>
-        <p>This is Sidebar...</p>
-      </div>
       <GoogleMap
         onClick={handleMapClick} // Add the onClick event handler here
         options={mapOptions}

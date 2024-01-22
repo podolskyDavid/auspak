@@ -11,7 +11,9 @@ import {
 
 import Link from "next/link";
 import Metrics from "@/app/dashboard/components/metrics";
-import InteractiveMap from "@/app/dashboard/components/interactive-map";
+import InteractiveMapOperator from "@/app/dashboard/components/interactive-map-operator";
+import InteractiveMapDriver from "./components/interactive-map-driver";
+import InteractiveMapPassenger from "./components/interactive-map-passenger";
 import Sidebar from "@/components/sidebard/sidebard";
 import BusDriverDashboard from "@/app/dashboard/components/bus-driver-component";
 
@@ -23,7 +25,7 @@ export default function Dashboard() {
         <div className="flex flex-col bg-auspak-white h-screen w-screen p-6 gap-6">
           <Metrics/>
           <BusDriverDashboard/>
-          <InteractiveMap/>
+          <InteractiveMapDriver/>
         </div>
       </div>
     </main>
