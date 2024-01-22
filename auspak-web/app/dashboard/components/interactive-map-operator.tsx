@@ -6,7 +6,7 @@ import {sendData, fetchData} from '../../services/apiService';
 import { ShowerHead } from 'lucide-react';
 
 
-export default function InteractiveMapOperator() {
+export default function InteractiveMapOperator({ token }: { token: string }) {
 
   type MarkerType = {
     position: google.maps.LatLng | google.maps.LatLngLiteral;
@@ -28,30 +28,32 @@ export default function InteractiveMapOperator() {
   
   useEffect(() => {
     const loadData = async () => {
-      try {
-        const fetchedMarkers = await fetchData("stops/list", {"token": "operator_0"});
-        console.log('Markers received:', fetchedMarkers);
-        if (fetchedMarkers) {
-          const markersData = fetchedMarkers.map((marker: any) => ({
-            position: {
-              lat: marker.lat,
-              lng: marker.long
-            },
-            icon: {
-              url: '/box.png', // Assuming the icon is the same for all markers
-              scaledSize: new google.maps.Size(30, 30) // Assuming the same size for all markers
-            }
-          }));
-          setMarkers(markersData);
-        } else {
-          console.error('Error: fetchedMarkers.data is not an array');
-        }
-      } catch (error) {
-        console.error('Fetching markers error:', error);
+      const stopsResponse = await fetchData('stops/list', { token: token });
+      const fetchedMarkers = await stopsResponse.json();
+      if (!stopsResponse.ok) {
+        console.error("Couldn't fetch list of buses and stops:", fetchedMarkers);
+        return;
+      }
+      console.log('Markers received:', fetchedMarkers);
+      const fetchedStopMarkers = fetchedMarkers.stops;
+      if (fetchedStopMarkers) {
+        const stopMarkersData = fetchedStopMarkers.map((marker: any) => ({
+          position: {
+            lat: marker.lat,
+            lng: marker.long
+          },
+          icon: {
+            url: '/box.png', // Assuming the icon is the same for all markers
+            scaledSize: new google.maps.Size(30, 30) // Assuming the same size for all markers
+          }
+        }));
+        setMarkers(stopMarkersData);
+      } else {
+        console.error('Error: fetchedMarkers.data is not an array');
       }
     };
     loadData();
-  }, []);
+  }, [token]);
 
 
   const mapCenter = useMemo(

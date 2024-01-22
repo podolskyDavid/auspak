@@ -7,7 +7,7 @@ import { ShowerHead } from 'lucide-react';
 
 
 
-export default function InteractiveMapDriver() {
+export default function InteractiveMapDriver({ token }: { token: string }) {
   const libraries = useMemo(() => ['places'], []);
 
 
@@ -31,33 +31,35 @@ export default function InteractiveMapDriver() {
     libraries: libraries as any,
   });
 
-  
+
   useEffect(() => {
     const loadData = async () => {
-      try {
-        const fetchedMarkers = await fetchData("stops/list", {"token": "ryan.gosling@drive.com"});
-        console.log('Markers received:', fetchedMarkers);
-        if (fetchedMarkers) {
-          const markersData = fetchedMarkers.map((marker: any) => ({
-            position: {
-              lat: marker.lat,
-              lng: marker.long
-            },
-            icon: {
-              url: '/bus-stop.png', // Assuming the icon is the same for all markers
-              scaledSize: new google.maps.Size(30, 30) // Assuming the same size for all markers
-            }
-          }));
-          setStopMarker(markersData);
-        } else {
-          console.error('Error: fetchedMarkers.data is not an array');
-        }
-      } catch (error) {
-        console.error('Fetching markers error:', error);
+      const stopsResponse = await fetchData('stops/list', { token: token });
+      const fetchedMarkers = await stopsResponse.json();
+      if (!stopsResponse.ok) {
+        console.error("Couldn't fetch list of buses and stops:", fetchedMarkers);
+        return;
+      }
+      console.log('Markers received:', fetchedMarkers);
+      const fetchedStopMarkers = fetchedMarkers.stops;
+      if (fetchedStopMarkers) {
+        const stopMarkersData = fetchedStopMarkers.map((marker: any) => ({
+          position: {
+            lat: marker.lat,
+            lng: marker.long
+          },
+          icon: {
+            url: '/bus-stop.png', // Assuming the icon is the same for all markers
+            scaledSize: new google.maps.Size(30, 30) // Assuming the same size for all markers
+          }
+        }));
+        setStopMarker(stopMarkersData);
+      } else {
+        console.error('Error: fetchedMarkers.data is not an array');
       }
     };
     loadData();
-  }, []);
+  }, [token]);
 
   const mapCenter = useMemo(
     () => ({ lat: 48.1351, lng: 11.5820 }),

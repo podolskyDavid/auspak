@@ -1,4 +1,4 @@
-const BASE_URL = 'http://159.89.103.250:8000'; // Use the environment variable
+const BASE_URL = 'https://157.230.105.218'; // Use the environment variable
 
 export async function fetchData(endpoint: string, params: Record<string, any> | null = null) {
   let url: string = `${BASE_URL}/${endpoint}`;

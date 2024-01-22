@@ -9,7 +9,7 @@ import { ShowerHead } from 'lucide-react';
 import { set } from 'react-hook-form';
 
 
-export default function InteractiveMapPassenger() {
+export default function InteractiveMapPassenger({ token }: { token: string }) {
 
   type MarkerType = {
     position: google.maps.LatLng | google.maps.LatLngLiteral;
@@ -23,6 +23,7 @@ export default function InteractiveMapPassenger() {
   const [address, setAddress] = useState('Please select a location');
   const [long, setLong] = useState(0);
   const [lat, setLat] = useState(0);
+  const [buttonClicked, setButtonClicked] = useState(false);
 
   
   const [passenger_marker, setPassengerMarker] = useState<MarkerType[]>([]);
@@ -32,31 +33,32 @@ export default function InteractiveMapPassenger() {
 
   useEffect(() => {
     const loadBusMarkers = async () => {
-      try {
-        const fetchedBusMarkers = await fetchData("buses/list", {"token": "operator_0"});
-        console.log('Bus markers received:', fetchedBusMarkers);
-        if (fetchedBusMarkers) {
-          const busMarkersData = fetchedBusMarkers.map((marker: any) => ({
-            position: {
-              lat: marker.lat,
-              lng: marker.long
-            },
-            icon: {
-              url: '/bus.png', // Assuming the icon is the same for all bus markers
-              scaledSize: new google.maps.Size(30, 30) // Assuming the same size for all bus markers
-            }
-          }));
-          setBusMarker(busMarkersData);
-        } else {
-          console.error('Error: fetchedBusMarkers.data is not an array');
-        }
-      } catch (error) {
-        console.error('Fetching bus markers error:', error);
+      const stopsResponse = await fetchData('stops/list', { token: token });
+      const fetchedMarkers = await stopsResponse.json();
+      if (!stopsResponse.ok) {
+        console.error("Couldn't fetch list of buses and stops:", fetchedMarkers);
+        return;
+      }
+      console.log('Markers received:', fetchedMarkers);
+      const fetchedBusMarkers = fetchedMarkers.buses;
+      if (fetchedBusMarkers) {
+        const busMarkersData = fetchedBusMarkers.map((marker: any) => ({
+          position: {
+            lat: marker.lat,
+            lng: marker.long
+          },
+          icon: {
+            url: '/bus.png', // Assuming the icon is the same for all bus markers
+            scaledSize: new google.maps.Size(30, 30) // Assuming the same size for all bus markers
+          }
+        }));
+        setBusMarker(busMarkersData);
+      } else {
+        console.error('Error: fetchedBusMarkers.data is not an array');
       }
     };
     loadBusMarkers();
-  }, []);
-
+  }, [token]);
 
 
   
@@ -105,33 +107,32 @@ export default function InteractiveMapPassenger() {
   };
   }
 
-  const handleButton = () => {
+  const handleButton = async () => {
     console.log('Button clicked!');
-    const endpoint = "stops/"; // Replace with your actual endpoint
-    const params = {"token": "passenger_0"}
-
-    const body = {
-      "lat": lat,
-      "long": long,
-      "entity": "passenger_pickup",
-      "name": address
-    };
-
-    let response;
-
     try {
-      response = sendData(endpoint, params, body);
-      console.log('Data sent successfully:', response);
-    } catch (error) {
-      console.error('Error sending data:', error);
-    }
-    
-    response?.then(data => {
-      const bus_id = data.bus_id;
+      const endpoint = "stops";
+      const params = { token: token };
+
+      const body = {
+        "lat": lat,
+        "long": long,
+        "entity": "passenger_pickup",
+        "name": address
+      };
+  
+      // Send POST request
+      const response = await (await sendData(endpoint, params, body)).json();
+
+      if (!response) {
+        throw new Error('Response is undefined');
+      }
+      const bus_id = response.data.bus_id;
       console.log('Bus ID:', bus_id);
-    }).catch(error => {
-      console.error('Error extracting bus_id:', error);
-    });
+      // Update state or perform other actions after a successful request
+      setButtonClicked(true);
+    } catch (error) {
+      console.error('Error sending POST request:', error);
+    }
 
     //TODO bus
 
@@ -166,6 +167,7 @@ export default function InteractiveMapPassenger() {
       <button
         className="absolute top-1/2 left-1/2 z-10 flex flex-col mt-4 mb-4 gap-4 min-w-96 transform -translate-x-1/2 -translate-y-1/2 bg-auspak-dark-grey text-white p-2"
         onClick={handleButton}
+        disabled={buttonClicked}
         style={{ margin: '10px' }}>
           <div className="text-2xl font-bold">
             Order Bus

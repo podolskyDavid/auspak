@@ -87,13 +87,21 @@ export default function Dashboard() {
         <Sidebar fullName={fullName} userEntity={userEntity.charAt(0).toUpperCase() + userEntity.slice(1)}/>
         <div className="flex flex-col bg-auspak-white h-screen w-screen p-6 gap-6">
           {userEntity === 'manager' ? (
-            <Metrics token={token!}/>
+            <>
+              <Metrics token={token!}/>
+              <InteractiveMapOperator token={token!} />
+            </>
           ) : userEntity === 'driver' ? (
-            <BusDriverDashboard token={token!}/>
+            <>
+              <BusDriverDashboard token={token!}/>
+              <InteractiveMapDriver token={token!}/>
+            </>
           ) : (
-            <BusDriverDashboard token={token!}/>
+            <>
+              {/* <BusDriverDashboard token={token!}/> */}
+              <InteractiveMapPassenger token={token!}/>
+            </>
           )}
-          <InteractiveMapDriver />
         </div>
       </div>
     </main>
