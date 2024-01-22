@@ -3,8 +3,9 @@
 import { GoogleMap, Marker, useLoadScript } from '@react-google-maps/api';
 //import type { NextPage } from 'next';
 //import styles from '../styles/Home.module.css';
-import { useMemo, useState } from 'react';
-import {sendData} from '../../services/apiService';
+import { useEffect, useMemo, useState } from 'react';
+import {sendData, fetchData} from '../../services/apiService';
+import { ShowerHead } from 'lucide-react';
 
 
 export default function InteractiveMap() {
@@ -21,7 +22,39 @@ export default function InteractiveMap() {
   const [address, setAddress] = useState('Please select a location');
   const [long, setLong] = useState(0);
   const [lat, setLat] = useState(0);
-  const [markers, setMarkers] = useState<MarkerType[]>([]); // Explicitly type the markers state
+
+  
+  const [markers, setMarkers] = useState<MarkerType[]>([]);
+  const [latest_marker, setLatestMarker] = useState<MarkerType[]>([]);
+
+  
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const fetchedMarkers = await fetchData("stops/list", {"token": "operator_0"});
+        console.log('Markers received:', fetchedMarkers);
+        if (fetchedMarkers) {
+          const markersData = fetchedMarkers.map((marker: any) => ({
+            position: {
+              lat: marker.lat,
+              lng: marker.long
+            },
+            icon: {
+              url: '/box.png', // Assuming the icon is the same for all markers
+              scaledSize: new google.maps.Size(30, 30) // Assuming the same size for all markers
+            }
+          }));
+          setMarkers(markersData);
+        } else {
+          console.error('Error: fetchedMarkers.data is not an array');
+        }
+      } catch (error) {
+        console.error('Fetching markers error:', error);
+      }
+    };
+    loadData();
+  }, []);
+
 
   const mapCenter = useMemo(
     () => ({ lat: 48.1351, lng: 11.5820 }),
@@ -74,22 +107,20 @@ export default function InteractiveMap() {
       setLat(event.latLng.lat());
       setLong(event.latLng.lng());
 
-      setMarkers([
-        {
-          position: event.latLng,
-          icon: {
-            url: '/box.png', // Path to the image in the public folder
-            scaledSize: new google.maps.Size(30, 30), // Adjust the size as needed
-          },
+      setLatestMarker([{
+        position: event.latLng!.toJSON(),
+        icon: {
+          url: '/box.png', // Path to the image in the public folder
+          scaledSize: new google.maps.Size(30, 30), // Adjust the size as needed
         },
-      ]);
-    };
-    const geocoder = new google.maps.Geocoder();
-    const resp = await geocoder.geocode({ location: event.latLng});
-    const newAddress = resp.results[0].address_components[1].long_name + " " + resp.results[0].address_components[0].long_name;
-    setAddress(newAddress);
+      }]);
+      console.log(latest_marker);
+      const geocoder = new google.maps.Geocoder();
+      const resp = await geocoder.geocode({ location: event.latLng});
+      const newAddress = resp.results[0].address_components[1].long_name + " " + resp.results[0].address_components[0].long_name;
+      setAddress(newAddress);
   };
-
+  }
 
   return (
     <div className={"relative text-2xl"}> {/* Add relative positioning here */}
@@ -105,11 +136,13 @@ export default function InteractiveMap() {
         mapContainerStyle={{ width: '1200px', height: '800px' }} // Ensure width has 'px'
         onLoad={() => console.log('Map Component Loaded...')}
       >
-        {markers.map((marker, index) => (
-        <Marker key={index} position={marker.position} icon={marker.icon} />
+        {markers.map((markers, index) => (
+        <Marker key={index} position={markers.position} icon={markers.icon} />
       ))}
+        {latest_marker.length > 0 && latest_marker.map((marker, index) => (
+          <Marker key={index} position={marker.position} icon={marker.icon} />
+        ))}
       </GoogleMap>
-
       
 
       <div className={"absolute top-1/2 left-1/4 transform -translate-y-1/2 p-4"}>
