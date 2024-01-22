@@ -38,7 +38,8 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 
-import {useState} from "react";
+import { useState } from "react";
+import { sendData } from '../../services/apiService';
 
 const roles = [
   { label: "Passenger", value: "passenger" },
@@ -77,21 +78,15 @@ export function RegistrationForm({className, ...props}: UserAuthFormProps) {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     // Registration request
     setIsLoading(true)
-    const registerResponse = await fetch('http://130.162.220.233:8000/auth/register', {
-      method: 'POST',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
+    const registerResponse = await sendData('auth/register', null, {
         id: 0,
         password: values.password,
         entity: values.role,
         first_name: values.firstName,
         last_name: values.lastName,
         email: values.email
-      })
-    });
+      }
+    );
 
     setRegistrationMessage("Registration successful")
     console.log(registerResponse);
@@ -104,12 +99,7 @@ export function RegistrationForm({className, ...props}: UserAuthFormProps) {
     }
 
     // Login request
-    const loginResponse = await fetch(`http://130.162.220.233:8000/auth/login?email=${values.email}&password=${values.password}`, {
-      method: 'POST',
-      headers: {
-        'Accept': 'application/json'
-      }
-    });
+    const loginResponse = await sendData('auth/login', { email: values.email, password: values.password });
 
     if (!loginResponse.ok) {
       const errorData = await loginResponse.json();
@@ -289,12 +279,7 @@ export function LoginForm({className, ...props}: UserAuthFormProps) {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true)
 
-    const loginResponse = await fetch(`http://130.162.220.233:8000/auth/login?email=${values.email}&password=${values.password}`, {
-      method: 'POST',
-      headers: {
-        'Accept': 'application/json'
-      }
-    });
+    const loginResponse = await sendData('auth/login', { email: values.email, password: values.password } );
 
     if (!loginResponse.ok) {
       const errorData = await loginResponse.json();

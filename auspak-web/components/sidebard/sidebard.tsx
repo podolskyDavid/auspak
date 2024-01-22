@@ -5,7 +5,7 @@ import {Badge} from "@/components/ui/badge";
 import Link from "next/link";
 import {Button} from "@/components/ui/button";
 
-export default function Sidebar() {
+export default function Sidebar({ fullName, userEntity }: { fullName: string , userEntity : string}) {
   return (
     <div className="flex flex-col bg-auspak-green h-screen w-1/4 max-w-80 min-w-64 p-6 justify-between">
       <div>
@@ -26,10 +26,10 @@ export default function Sidebar() {
 
           <div className="pb-6">
             <div className="text-3xl font-bold">
-              John Doe
+              {fullName}
             </div>
             <div>
-              Regional Logistic Strategist
+              {userEntity}
             </div>
           </div>
           <div className="flex flex-col justify-between gap-2 mt-4">
