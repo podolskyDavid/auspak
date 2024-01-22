@@ -36,22 +36,22 @@ interface Chat {
   chat_id: number;
   created_at: string;
   id: number;
-  sender_id: boolean;
+  sender_id: number;
   text: string;
 }
 
 interface UserChatCellProps {
   chat: Chat;
-  isSender: boolean;
+  myId: number;
 }
 
-const UserChatCell: React.FC<UserChatCellProps> = ({chat, isSender}) => {
+const UserChatCell: React.FC<UserChatCellProps> = ({chat, myId}) => {
   return (
-    <div className={`flex flex-col ${isSender ? 'ml-auto w-1/2 max-w-80' : 'w-1/2 max-w-80'} gap-1`}>
-      <div className={`p-2 rounded-md ${isSender ? 'bg-auspak-green' : 'bg-auspak-light-grey'} text-md`}>
+    <div className={`flex flex-col ${chat.sender_id == myId ? 'ml-auto w-1/2 max-w-80' : 'w-1/2 max-w-80'} gap-1`}>
+      <div className={`p-2 rounded-md ${chat.sender_id == myId ? 'bg-auspak-green' : 'bg-auspak-light-grey'} text-md`}>
         {chat.text}
       </div>
-      <div className={`text-xs ${isSender ? 'ml-auto' : ''}`}>
+      <div className={`text-xs ${chat.sender_id == myId ? 'ml-auto' : ''}`}>
         {new Date(chat.created_at).toLocaleString('en-GB', {
           day: '2-digit',
           month: '2-digit',
@@ -70,7 +70,9 @@ export default function ChatInterface({params}: { params: { chatId: string } }) 
   const [isLoading, setIsLoading] = React.useState<boolean>(true)
   const [fullName, setFullName] = useState<string>('');
   const [userEntity, setUserEntity] = useState<string>('');
+  const [myId, setMyId] = useState<number>(0);
   const [chatHistoryData, setChatHistoryData] = useState<Chat[]>([]);
+  const messagesEndRef = useRef<null | HTMLDivElement>(null);
 
 
   useEffect(() => {
@@ -97,6 +99,7 @@ export default function ChatInterface({params}: { params: { chatId: string } }) 
           // Set full name and entity based on fetched data
           setFullName(`${meData.first_name} ${meData.last_name}`);
           setUserEntity(`${meData.entity}`);
+          setMyId(meData.id);
 
           console.log('Data received:', meData);
         }
@@ -134,7 +137,7 @@ export default function ChatInterface({params}: { params: { chatId: string } }) 
   useEffect(() => {
     if (token) { // Only run this effect if the token is not null
       // Replace with your actual server URL and chat ID
-      ws.current = new WebSocket(`ws://207.154.198.36:8000/chats/${params.chatId}?token=${token}`);
+      ws.current = new WebSocket(`ws://207.154.198.36:8000/chats/${params.chatId}?token=${encodeURIComponent(token)}`);
 
       ws.current.onopen = () => {
         console.log('ws opened');
@@ -144,7 +147,7 @@ export default function ChatInterface({params}: { params: { chatId: string } }) 
         console.log('ws closed');
         // Reopen the WebSocket after a delay
         setTimeout(() => {
-          ws.current = new WebSocket(`ws://207.154.198.36:8000/chats/${params.chatId}?token=${token}`);
+          ws.current = new WebSocket(`ws://207.154.198.36:8000/chats/${params.chatId}?token=${encodeURIComponent(token)}`);
         }, 1000); // 1 second delay
       };
 
@@ -155,6 +158,10 @@ export default function ChatInterface({params}: { params: { chatId: string } }) 
         setChatHistoryData(prevChatHistory => [...prevChatHistory, message]);
       };
 
+      ws.current.onerror = (error) => {
+        console.log('WebSocket error: ', error);
+      };
+
       return () => {
         // Close the WebSocket connection when the component unmounts
         ws.current?.close();
@@ -162,6 +169,11 @@ export default function ChatInterface({params}: { params: { chatId: string } }) 
     }
   }, [token]);
 
+  useEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({behavior: "instant"});
+    }
+  }, [chatHistoryData]);
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
@@ -172,6 +184,7 @@ export default function ChatInterface({params}: { params: { chatId: string } }) 
       ws.current.send(data.chatMessage);
     }
     console.log("Sent message:", data)
+    form.reset({chatMessage: ''});
   }
 
 
@@ -193,9 +206,10 @@ export default function ChatInterface({params}: { params: { chatId: string } }) 
                 </div>
               ) : (
                 chatHistoryData.map((chat, index) => (
-                  <UserChatCell key={index} chat={chat} isSender={chat.sender_id}/>
+                  <UserChatCell key={index} chat={chat} myId={myId}/>
                 ))
               )}
+              <div ref={messagesEndRef}/>
             </div>
 
             <Form {...form}>

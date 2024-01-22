@@ -95,6 +95,7 @@ export function RegistrationForm({className, ...props}: UserAuthFormProps) {
       const errorData = await registerResponse.json();
       setRegistrationMessage(errorData.detail);
       console.error('Registration failed');
+      setIsLoading(false)
       return;
     }
 
@@ -105,6 +106,7 @@ export function RegistrationForm({className, ...props}: UserAuthFormProps) {
       const errorData = await loginResponse.json();
       setRegistrationMessage(errorData.detail);
       console.error('Login failed');
+      setIsLoading(false)
       return;
     }
 
@@ -285,6 +287,7 @@ export function LoginForm({className, ...props}: UserAuthFormProps) {
       const errorData = await loginResponse.json();
       setLoginMessage(errorData.detail);
       console.error('Login failed');
+      setIsLoading(false)
       return;
     }
 

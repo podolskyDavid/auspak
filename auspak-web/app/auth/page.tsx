@@ -10,7 +10,7 @@ import {Button, buttonVariants} from "@/components/ui/button"
 import {LoginForm, RegistrationForm} from "@/app/auth/components/user-auth-form";
 
 export default function AuthenticationPage() {
-  const [isLogin, setIsLogin] = useState(false);
+  const [isLogin, setIsLogin] = useState(true);
 
   return (
     <>
@@ -69,14 +69,14 @@ export default function AuthenticationPage() {
             <p className="px-8 text-center text-sm text-muted-foreground">
               By clicking continue, you agree to our{" "}
               <Link
-                href="/terms"
+                href="/"
                 className="underline underline-offset-4 hover:text-primary"
               >
                 Terms of Service
               </Link>{" "}
               and{" "}
               <Link
-                href="/privacy"
+                href="/"
                 className="underline underline-offset-4 hover:text-primary"
               >
                 Privacy Policy
