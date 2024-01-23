@@ -3,6 +3,15 @@
 import {Button} from "@/components/ui/button";
 import React, { useEffect, useState } from "react";
 import { fetchData, sendData } from '../../services/apiService';
+import * as z from "zod";
+import {useForm} from "react-hook-form";
+import {zodResolver} from "@hookform/resolvers/zod";
+import {Form, FormControl, FormField, FormItem, FormMessage} from "@/components/ui/form";
+import {Input} from "@/components/ui/input";
+import {Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover";
+import {cn} from "@/lib/utils";
+import {Check, ChevronsUpDown} from "lucide-react";
+import {Command, CommandEmpty, CommandGroup, CommandInput, CommandItem} from "@/components/ui/command";
 import { set } from "zod";
 import { useBusContext } from "./bus-context";
 
@@ -23,9 +32,13 @@ function mapStopEntity(stopEntity: string | undefined): string {
   }
 }
 
+const formSchema = z.object({
+  busLine: z.number({
+    required_error: "Please select a bus line.",
+  }),
+})
 
 export default function BusDriverDashboard({ token }: { token: string }) {
-
 
   interface BusData {
     current_stop?: StopData;
@@ -40,11 +53,57 @@ export default function BusDriverDashboard({ token }: { token: string }) {
   }
 
   const [data, setData] = useState<BusData | null>(null);
-  
+
   const busContext = useBusContext();
   const [startBusClicked, setStartBusClicked] = [busContext.startBusClicked, busContext.setStartBusClicked];
   const [stopBusClicked, setStopBusClicked] = [busContext.stopBusClicked, busContext.setStopBusClicked];
   const [nextStopClicked, setNextStopClicked] = [busContext.nextStopClicked, busContext.setNextStopClicked];
+
+  const [busLines, setBusLines] = useState<string[]>([]);
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+  })
+
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    setStartBusClicked(true);
+
+    const endpoint = 'bus/start';
+    const params = { token: token, bus_id: values.busLine };
+
+    // Send POST request
+    const initialStopsResponse = await sendData(endpoint, params);
+    const initialStopsData = await initialStopsResponse.json();
+
+    if (!initialStopsResponse.ok) {
+      console.error("Couldn't fetch list of stops:", initialStopsData);
+      return;
+    }
+    console.log('Data received:', initialStopsData);
+    setData(initialStopsData);
+    setStartBusClicked(false);
+
+
+  }
+
+  useEffect(() => {
+    const loadData = async () => {
+      const busLinesResponse = await fetchData('bus/lines', { token: token });
+      const busLinesData = await busLinesResponse.json();
+      if (!busLinesResponse.ok) {
+        console.error("Couldn't fetch list of bus lines:", busLinesData);
+        return;
+      }
+      console.log('Data received:', busLinesData);
+      if (Array.isArray(busLinesData.lines)) {
+        setBusLines(busLinesData.lines);
+      } else {
+        console.error("Received data is not an array:", busLinesData);
+      }
+    };
+
+    loadData();
+  }, [token]);
 
   useEffect(() => {
     const loadData = async () => {
@@ -73,10 +132,10 @@ export default function BusDriverDashboard({ token }: { token: string }) {
     try {
       const endpoint = 'bus/start';
       const params = { token: token, bus_id: bus_id };
-  
+
       // Send POST request
       await sendData(endpoint, params);
-  
+
       // Update state or perform other actions after a successful request
       setStartBusClicked(false);
 
@@ -128,11 +187,77 @@ export default function BusDriverDashboard({ token }: { token: string }) {
           <div className="text-3xl font-bold">
             Dashboard
           </div>
-          <div className="flex gap-4">
-            <Button onClick={() => handleStartBus(100)} disabled={startBusClicked} className="w-56">
-              {startBusClicked ? "Starting the bus..." : "Start the bus"}
-            </Button>
-          </div>
+
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)}>
+              <div className="grid gap-2">
+
+                <FormField
+                  control={form.control}
+                  name="busLine"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <FormControl>
+                            <Button
+                              variant="outline"
+                              role="combobox"
+                              className={cn(
+                                "justify-between",
+                                !field.value && "text-muted-foreground"
+                              )}
+                            >
+                              {field.value
+                                ? busLines.find(
+                                  (busLine) => busLine === field.value
+                                )?.toString()
+                                : "Select a line"}
+                              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                            </Button>
+                          </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent className="p-0">
+                          <Command>
+                            <CommandInput placeholder="Search a line..." />
+                            <CommandEmpty>No bus line found.</CommandEmpty>
+                            <CommandGroup>
+                              {busLines.map((busLine) => (
+                                <CommandItem
+                                  value={busLine}
+                                  key={busLine}
+                                  onSelect={() => {
+                                    form.setValue("busLine", busLine)
+                                  }}
+                                >
+                                  <Check
+                                    className={cn(
+                                      "mr-2 h-4 w-4",
+                                      busLine === field.value
+                                        ? "opacity-100"
+                                        : "opacity-0"
+                                    )}
+                                  />
+                                  {busLine}
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          </Command>
+                        </PopoverContent>
+                      </Popover>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/*{registrationMessage && <div style={{ color: 'red' }}>{registrationMessage}</div>}*/}
+                <Button className="w-56">
+                  {startBusClicked ? "Starting the bus..." : "Start the bus"}
+                </Button>
+              </div>
+            </form>
+          </Form>
+
         </div>
       </div>
     )
