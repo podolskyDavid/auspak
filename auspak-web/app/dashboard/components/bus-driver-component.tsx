@@ -73,6 +73,9 @@ export default function BusDriverDashboard({ token }: { token: string }) {
   
       // Update state or perform other actions after a successful request
       setStartBusClicked(true);
+
+      //window.location.reload();
+
     } catch (error) {
       console.error('Error sending POST request:', error);
     }
@@ -88,6 +91,8 @@ export default function BusDriverDashboard({ token }: { token: string }) {
   
       // Update state or perform other actions after a successful request
       setStopBusClicked(true);
+
+      window.location.reload();
     } catch (error) {
       console.error('Error sending POST request:', error);
     }
@@ -103,6 +108,8 @@ export default function BusDriverDashboard({ token }: { token: string }) {
   
       // Update state or perform other actions after a successful request
       setNextStopClicked(true);
+
+      window.location.reload();
     } catch (error) {
       console.error('Error sending POST request:', error);
     }

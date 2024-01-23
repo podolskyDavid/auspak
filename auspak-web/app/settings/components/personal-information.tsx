@@ -35,35 +35,49 @@ export default function PersonalInformation({ token }: { token: string }) {
     const formData = new FormData(event.currentTarget);
     const formProps = Object.fromEntries(formData);
 
-    if (formProps.old_password !== private_data.password) {
-      alert('Passwords do not match');
-      return;
-    }
-    else {
-      console.log('Password match');
-      try{
-        const response = await updateData('auth/change_password', { token, password: formProps.new_password });
-        if (!response.ok) {
-          throw new Error('Failed to update profile');
+
+    if (formProps.new_password !== "") {
+      if (formProps.old_password !== private_data.password) {
+        alert('Passwords do not match');
+        return;
+      }
+      else {
+        console.log('Password match');
+        try{
+          const response = await updateData('auth/change_password', { token, password: formProps.new_password });
+          if (!response.ok) {
+            throw new Error('Failed to update profile');
+          }
+          const result = await response.json();
+          console.log('Profile updated successfully:', result);
         }
-        const result = await response.json();
-        console.log('Profile updated successfully:', result);
+        catch(error){
+          console.error('Error updating profile:', error);
+        }
       }
-      catch(error){
-        console.error('Error updating profile:', error);
-      }
+  }
+    const settings_data = {
+      first_name: formProps.first_name,
+      last_name: formProps.last_name,
+      email: formProps.email,
+      address: formProps.address,
+      phone_number: formProps.phone_number
     }
+    console.log('Settings data:', settings_data);
+    
 
     try {
-      const response = await updateData('auth/settings', { token }, formProps);
+      const response = await updateData('auth/settings', { token}, settings_data);
       if (!response.ok) {
         throw new Error('Failed to update profile');
       }
       const result = await response.json();
-      console.log('Profile updated successfully:', result);
+      //console.log('Profile updated successfully:', result);
     } catch (error) {
       console.error('Error updating profile:', error);
     }
+
+    window.location.reload();
   };
 
 return(
@@ -93,8 +107,8 @@ return(
         </label>
         <div className="mt-1">
           <input
-            id="lastname"
-            name="lastname"
+            id="last_name"
+            name="last_name"
             type="text"
             autoComplete="family-name"
             defaultValue={data?.last_name || ''}
