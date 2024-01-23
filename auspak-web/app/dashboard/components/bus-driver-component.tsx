@@ -3,6 +3,8 @@
 import {Button} from "@/components/ui/button";
 import React, { useEffect, useState } from "react";
 import { fetchData, sendData } from '../../services/apiService';
+import { set } from "zod";
+import { useBusContext } from "./bus-context";
 
 
 function mapStopEntity(stopEntity: string | undefined): string {
@@ -24,6 +26,7 @@ function mapStopEntity(stopEntity: string | undefined): string {
 
 export default function BusDriverDashboard({ token }: { token: string }) {
 
+
   interface BusData {
     current_stop?: StopData;
     next_stops?: StopData[];
@@ -37,9 +40,11 @@ export default function BusDriverDashboard({ token }: { token: string }) {
   }
 
   const [data, setData] = useState<BusData | null>(null);
-  const [startBusClicked, setStartBusClicked] = useState(false);
-  const [stopBusClicked, setStopBusClicked] = useState(false);
-  const [nextStopClicked, setNextStopClicked] = useState(false);
+  
+  const busContext = useBusContext();
+  const [startBusClicked, setStartBusClicked] = [busContext.startBusClicked, busContext.setStartBusClicked];
+  const [stopBusClicked, setStopBusClicked] = [busContext.stopBusClicked, busContext.setStopBusClicked];
+  const [nextStopClicked, setNextStopClicked] = [busContext.nextStopClicked, busContext.setNextStopClicked];
 
   useEffect(() => {
     const loadData = async () => {
@@ -54,7 +59,7 @@ export default function BusDriverDashboard({ token }: { token: string }) {
     };
 
     loadData();
-  }, [token]);
+  }, [token, startBusClicked, stopBusClicked, nextStopClicked]);
 
   if (!data) {
     return;
@@ -64,6 +69,7 @@ export default function BusDriverDashboard({ token }: { token: string }) {
   const next_stops = data.next_stops;
 
   const handleStartBus = async (bus_id: number) => {
+    setStartBusClicked(true);
     try {
       const endpoint = 'bus/start';
       const params = { token: token, bus_id: bus_id };
@@ -72,9 +78,7 @@ export default function BusDriverDashboard({ token }: { token: string }) {
       await sendData(endpoint, params);
   
       // Update state or perform other actions after a successful request
-      setStartBusClicked(true);
-
-      //window.location.reload();
+      setStartBusClicked(false);
 
     } catch (error) {
       console.error('Error sending POST request:', error);
@@ -82,6 +86,7 @@ export default function BusDriverDashboard({ token }: { token: string }) {
   }
 
   const handleStopBus = async () => {
+    setStopBusClicked(true);
     try {
       const endpoint = 'bus/stop';
       const params = { token: token };
@@ -90,15 +95,16 @@ export default function BusDriverDashboard({ token }: { token: string }) {
       await sendData(endpoint, params);
   
       // Update state or perform other actions after a successful request
-      setStopBusClicked(true);
+      setStopBusClicked(false);
 
-      window.location.reload();
+      //window.location.reload();
     } catch (error) {
       console.error('Error sending POST request:', error);
     }
   }
 
   const handleNextStop = async () => {
+    setNextStopClicked(true);
     try {
       const endpoint = 'bus/next';
       const params = { token: token };
@@ -107,9 +113,9 @@ export default function BusDriverDashboard({ token }: { token: string }) {
       await sendData(endpoint, params);
   
       // Update state or perform other actions after a successful request
-      setNextStopClicked(true);
+      setNextStopClicked(false);
 
-      window.location.reload();
+      //window.location.reload();
     } catch (error) {
       console.error('Error sending POST request:', error);
     }
@@ -139,11 +145,11 @@ export default function BusDriverDashboard({ token }: { token: string }) {
           Dashboard
         </div>
         <div className="flex gap-4">
-          <Button onClick={() => handleNextStop()} disabled={nextStopClicked} className="w-56">
-            {nextStopClicked ? "Moving the bus..." : "Next stop"}
+          <Button onClick={() => handleNextStop()} className="w-56" disabled={nextStopClicked}>
+            {nextStopClicked ? "Moving the bus...":"Next stop"}
           </Button>
-          <Button onClick={() => handleStopBus()} disabled={stopBusClicked} className="w-56">
-            {stopBusClicked ? "Stopping the bus..." : "Stop the bus"}
+          <Button onClick={() => handleStopBus()} className="w-56" disabled={stopBusClicked}>
+            {stopBusClicked ? "Stopping the bus...":"Stop the bus"}
           </Button>
         </div>
       </div>

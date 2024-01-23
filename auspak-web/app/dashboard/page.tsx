@@ -21,6 +21,8 @@ import BusDriverDashboard from "@/app/dashboard/components/bus-driver-component"
 import { fetchData } from '../services/apiService';
 import React, { useEffect, useState } from 'react';
 import EmptySidebar from "@/components/sidebar/empty-sidebar";
+import { BusProvider } from "./components/bus-context";
+
 
 export default function Dashboard() {
   const [token, setToken] = useState<string | null>(null);
@@ -92,10 +94,11 @@ export default function Dashboard() {
               <InteractiveMapOperator token={token!} />
             </>
           ) : userEntity === 'driver' ? (
-            <>
+            <BusProvider>
               <BusDriverDashboard token={token!}/>
               <InteractiveMapDriver token={token!}/>
-            </>
+            </BusProvider>
+            
           ) : (
             <>
               {/* <BusDriverDashboard token={token!}/> */}
