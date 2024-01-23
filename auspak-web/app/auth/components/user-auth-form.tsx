@@ -78,7 +78,7 @@ export function RegistrationForm({className, ...props}: UserAuthFormProps) {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     // Registration request
     setIsLoading(true)
-    const registerResponse = await sendData('bus/lines', null, {
+    const registerResponse = await sendData('auth/register', null, {
         id: 0,
         password: values.password,
         entity: values.role,
