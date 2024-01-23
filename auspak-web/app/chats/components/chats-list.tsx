@@ -77,6 +77,7 @@ interface UserData {
 
 interface SearchUserCellProps {
   user: UserData;
+  token: string;
 }
 
 const SearchUserCell: React.FC<SearchUserCellProps> = ({user, token}) => {
