@@ -49,14 +49,14 @@ const ChatTableCell: React.FC<ChatTableCellProps> = ({chat}) => {
             {chat.name}
           </div>
           <div className="flex gap-8 right-0">
-            <div className="font-light">
-              {chat.user_type}
-            </div>
             {chat.time ?
               <div className="font-light mr-2">
                 {chat.time}
               </div> : null
             }
+            <div className="font-light">
+              {chat.user_type}
+            </div>
           </div>
         </div>
         <div className="font-light">
@@ -68,9 +68,11 @@ const ChatTableCell: React.FC<ChatTableCellProps> = ({chat}) => {
 }
 
 interface UserData {
+  user_id: number;
   first_name: string;
   last_name: string;
   entity: string;
+  stop_name: string;
 }
 
 interface SearchUserCellProps {
@@ -133,7 +135,7 @@ export default function ChatsList({ token }: { token: string }) {
 
   useEffect(() => {
     const loadData = async () => {
-      const usersResponse = await fetchData('bus/users', { token: token });
+      const usersResponse = await fetchData('chats/users', { token: token });
       const usersData = await usersResponse.json();
       if (!usersResponse.ok) {
         console.error("Couldn't fetch list of users:", usersData);
@@ -141,7 +143,17 @@ export default function ChatsList({ token }: { token: string }) {
       }
       console.log('Users data received:', usersData.users);
       setUsersData(usersData.users);
-      setFilteredUsers(usersData.users)
+      const uniqueUserIds = new Set<number>();
+      const filtered = usersData.users.filter((user: UserData) => {
+        if (
+          !uniqueUserIds.has(user.user_id)
+        ) {
+          uniqueUserIds.add(user.user_id);
+          return true;
+        }
+        return false;
+      });
+      setFilteredUsers(filtered)
     };
 
     loadData();
@@ -157,12 +169,39 @@ export default function ChatsList({ token }: { token: string }) {
 
   function handleInputChange(event: React.ChangeEvent<HTMLInputElement>) {
     const searchText = event.target.value.toLowerCase();
-    const filtered = usersData?.filter(user =>
-      `${user.first_name} ${user.last_name}`.toLowerCase().includes(searchText)
-    );
+    const uniqueUserIds = new Set<number>();
+    const filtered = usersData?.filter(user => {
+      const fullName = `${user.first_name} ${user.last_name}`.toLowerCase();
+      const reversedFullName = `${user.last_name} ${user.first_name}`.toLowerCase();
+      const stopName = user.stop_name.toLowerCase();
+      console.log(`Value ${value} - entity ${user.entity}`);
+      if (
+        !uniqueUserIds.has(user.user_id) && (value === "" || value === user.entity) &&
+        (fullName.startsWith(searchText) || reversedFullName.startsWith(searchText) || stopName.startsWith(searchText))
+      ) {
+        uniqueUserIds.add(user.user_id);
+        return true;
+      }
+      return false;
+    });
     // @ts-ignore
     setFilteredUsers(filtered);
   }
+
+  useEffect(() => {
+    const uniqueUserIds = new Set<number>();
+    const filtered = usersData?.filter(user => {
+      if (
+        !uniqueUserIds.has(user.user_id) && (value === "" || value === user.entity)
+      ) {
+        uniqueUserIds.add(user.user_id);
+        return true;
+      }
+      return false;
+    });
+    // @ts-ignore
+    setFilteredUsers(filtered);
+  }, [value]);
 
   return (
     <div id="chats-list" className="">
