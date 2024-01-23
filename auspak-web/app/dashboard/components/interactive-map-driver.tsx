@@ -296,15 +296,11 @@ export default function InteractiveMapDriver({ token }: { token: string }) {
       ],
       disableDoubleClickZoom: true,
       gestureHandling: 'cooperative', // Require two-finger touch gestures
-
-
-
     }),
     []
   );
 
   useEffect(() => {
-    
     if (stopMarkers.length > 0 && isLoaded) {
     const directionsService = new google.maps.DirectionsService();
     const origin = stopMarkers[0]?.position; // Assuming the first marker is the start
@@ -328,6 +324,9 @@ export default function InteractiveMapDriver({ token }: { token: string }) {
         }
       );
     }
+  }
+  else {
+    setDirectionsResponse(null);
   }
   }, [isLoaded, stopMarkers]);
 
