@@ -190,13 +190,13 @@ export default function BusDriverDashboard({ token }: { token: string }) {
 
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)}>
-              <div className="grid gap-2">
+              <div className="flex gap-4">
 
                 <FormField
                   control={form.control}
                   name="busLine"
                   render={({ field }) => (
-                    <FormItem className="flex flex-col">
+                    <FormItem className="flex flex-col w-56">
                       <Popover>
                         <PopoverTrigger asChild>
                           <FormControl>
