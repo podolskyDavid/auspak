@@ -21,7 +21,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet"
 
-import {fetchData} from "@/app/services/apiService";
+import {fetchData, sendData} from "@/app/services/apiService";
 import Link from "next/link";
 import {Command, CommandEmpty, CommandGroup, CommandInput, CommandItem} from "@/components/ui/command";
 import {cn} from "@/lib/utils";
@@ -79,21 +79,37 @@ interface SearchUserCellProps {
   user: UserData;
 }
 
-const SearchUserCell: React.FC<SearchUserCellProps> = ({user}) => {
+const SearchUserCell: React.FC<SearchUserCellProps> = ({user, token}) => {
+  const endpoint = 'chats/';
+
+  const createChat = async (token: string, user_id: number) => {
+    const params = { token: token, user_id: user_id };
+
+    try {
+      const response = await sendData(endpoint, params);
+      console.log('Data sent successfully:', response);
+    } catch (error) {
+      console.error('Error sending data:', error);
+    }
+
+    location.reload()
+  }
+
   return (
     <div>
       <Separator/>
-      <Link href="/">
-        <div className="flex justify-between py-2">
-          <div className="font-bold text-xl hover:underline">
-            {user.first_name} {user.last_name}
-          </div>
-
-          <div className="font-light">
-            {user.entity}
-          </div>
+      <div className="flex justify-between py-2">
+        <div
+            className="font-bold text-xl hover:underline"
+            onClick={async () => await createChat(token, user.user_id)}
+        >
+          {user.first_name} {user.last_name}
         </div>
-      </Link>
+
+        <div className="font-light">
+          {user.entity}
+        </div>
+      </div>
     </div>
   )
 }
@@ -270,7 +286,7 @@ export default function ChatsList({ token }: { token: string }) {
               <div className="flex flex-col gap-2 py-4">
                 {filteredUsers ? (
                   filteredUsers.map((user, index) => (
-                    <SearchUserCell key={index} user={user}/>
+                    <SearchUserCell key={index} user={user} token={token}/>
                   ))
                 ) : (
                   <div className="flex flex-col gap-1">
