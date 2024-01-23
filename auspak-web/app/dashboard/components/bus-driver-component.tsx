@@ -210,7 +210,7 @@ export default function BusDriverDashboard({ token }: { token: string }) {
                             >
                               {field.value
                                 ? busLines.find(
-                                  (busLine) => busLine === field.value
+                                  (busLine) => busLine === field.value.toString()
                                 )?.toString()
                                 : "Select a line"}
                               <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -227,13 +227,13 @@ export default function BusDriverDashboard({ token }: { token: string }) {
                                   value={busLine}
                                   key={busLine}
                                   onSelect={() => {
-                                    form.setValue("busLine", busLine)
+                                    form.setValue("busLine", Number(busLine))
                                   }}
                                 >
                                   <Check
                                     className={cn(
                                       "mr-2 h-4 w-4",
-                                      busLine === field.value
+                                      busLine === field.value.toString()
                                         ? "opacity-100"
                                         : "opacity-0"
                                     )}
