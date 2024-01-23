@@ -46,14 +46,14 @@ export default function AuthenticationPage() {
               style={{backgroundColor: 'rgba(255, 255, 255, 0.9)'}}
             />
           </div>
-          {/* <div className="relative z-20 mt-auto rounded-lg p-4 " style={{backgroundColor: 'rgba(255, 255, 255, 0.9)'}}>
+          <div className="relative z-20 mt-auto rounded-lg p-4 " style={{backgroundColor: 'rgba(255, 255, 255, 0.9)'}}>
             <blockquote className="space-y-2">
               <p className="text-lg text-auspak-dark-grey">
-                &ldquo;Solving public transportation and parcels delivery.&rdquo;
+                &ldquo;This is a game-changer in urban logistics, merging ride-sharing, parcel delivery, and pooling into one seamless solution - a brilliant step towards smarter, sustainable city life.&rdquo;
               </p>
-              <footer className="text-sm text-auspak-dark-grey">Sofia Davis</footer>
+              <footer className="text-sm text-auspak-dark-grey">Letícia Taveira Figueiredo</footer>
             </blockquote>
-          </div> */}
+          </div>
         </div>
         <div className="lg:p-8">
           <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
