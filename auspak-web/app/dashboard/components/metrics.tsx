@@ -1,11 +1,11 @@
 "use client"
 
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
-import React, { useEffect, useState } from 'react';
-import { fetchData } from '../../services/apiService';
+import React, {useEffect, useState} from 'react';
+import {fetchData} from '../../services/apiService';
 
 
-export default function Metrics({ token }: { token: string }) {
+export default function Metrics({token}: { token: string }) {
 
   interface MetricsData {
     parcels_delivered?: number;
@@ -19,11 +19,11 @@ export default function Metrics({ token }: { token: string }) {
     parcels_damage?: number;
   }
 
-  const [data, setData] = useState<MetricsData | null>(null);  
+  const [data, setData] = useState<MetricsData | null>(null);
 
   useEffect(() => {
     const loadData = async () => {
-      const statisticsResponse = await fetchData('statistics', { token: token });
+      const statisticsResponse = await fetchData('statistics', {token: token});
       const statisticsData = await statisticsResponse.json();
       if (!statisticsResponse.ok) {
         console.error("Couldn't fetch statistics:", statisticsData);
@@ -39,7 +39,7 @@ export default function Metrics({ token }: { token: string }) {
   if (!data) {
     return <div>Loading...</div>;
   }
-  
+
   const parcels_delivered = data.parcels_delivered || 0;
   const parcels_pending = data.parcels_pending || 0;
   const peak_hours = data.peak_hours || 0;
@@ -49,107 +49,52 @@ export default function Metrics({ token }: { token: string }) {
   const emissions = data.emissions || 0;
   const customer_retention = data.customer_retention || 0;
   const parcels_damage = data.parcels_damage || 0;
-  
-  
+
+  type MetricCardProps = {
+    title: string;
+    content: number | string;
+  };
+
+  const MetricCard: React.FC<MetricCardProps> = ({ title, content }) => (
+    <Card className="flex flex-col justify-evenly bg-auspak-light-grey/10 h-28 w-96">
+      <CardHeader>
+        <CardTitle>{title}</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div>{content}</div>
+      </CardContent>
+    </Card>
+  );
+
   return (
     <div id="dashboard-metrics" className="">
-      <div className="text-3xl font-bold">
+      <div className="text-3xl font-bold mb-2">
         Metrics
       </div>
-      <div className="mt-4 mb-8">
+      <div className="flex flex-col space-y-4 gap-2">
         {/* First row of cards */}
-        <div className="flex justify-between space-x-6 mb-8 flex-wrap">
-          <Card className="w-[350px]">
-            <CardHeader>
-              <CardTitle>Parcels Delivered</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div>{parcels_delivered}</div>
-            </CardContent>
-          </Card>
-  
-          <Card className="w-[350px]">
-            <CardHeader>
-              <CardTitle>Parcels Pending</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div>{parcels_pending}</div>
-            </CardContent>
-          </Card>
-  
-          <Card className="w-[350px]">
-            <CardHeader>
-              <CardTitle>Peak Hours</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div>{peak_hours}</div>
-            </CardContent>
-          </Card>
-        </div>
-  
-        {/* Second row of cards */}
-        <div className="flex justify-between space-x-6 mb-8 flex-wrap">
-          <Card className="w-[350px]">
-            <CardHeader>
-              <CardTitle>Passengers Transported</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div>{passenger_transported}</div>
-            </CardContent>
-          </Card>
-  
-          <Card className="w-[350px]">
-            <CardHeader>  
-              <CardTitle>Passengers in Transit</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div>{passenger_transit}</div>
-            </CardContent>
-          </Card>
-  
-          <Card className="w-[350px]">
-            <CardHeader>
-              <CardTitle>Capacity Utilization</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div>{capacity_utilization}</div>
-            </CardContent>
-          </Card>
+        <div className="flex justify-between">
+          <MetricCard title="Parcels Delivered" content={parcels_delivered} />
+          <MetricCard title="Parcels Pending" content={parcels_pending} />
+          <MetricCard title="Peak Hours" content={peak_hours} />
         </div>
 
-                {/* Third row of cards */}
-                <div className="flex justify-between space-x-6 mb-8 flex-wrap">
-          <Card className="w-[350px]">
-            <CardHeader>
-              <CardTitle>Emissions Produced</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div>{emissions}</div>
-            </CardContent>
-          </Card>
-  
-          <Card className="w-[350px]">
-            <CardHeader>
-              <CardTitle>Customer Retention Rate</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div>{customer_retention}</div>
-            </CardContent>
-          </Card>
-  
-          <Card className="w-[350px]">
-            <CardHeader>
-              <CardTitle>Parcel Damage Rate</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div>{parcels_damage}</div>
-            </CardContent>
-          </Card>
+        {/* Second row of cards */}
+        <div className="flex justify-between">
+          <MetricCard title="Passengers Transported" content={passenger_transported} />
+          <MetricCard title="Passengers in Transit" content={passenger_transit} />
+          <MetricCard title="Capacity Utilization" content={capacity_utilization} />
+        </div>
+
+        {/* Third row of cards */}
+        <div className="flex justify-between">
+          <MetricCard title="Emissions Produced" content={emissions} />
+          <MetricCard title="Customer Retention Rate" content={customer_retention} />
+          <MetricCard title="Parcel Damage Rate" content={parcels_damage} />
         </div>
       </div>
     </div>
   );
-
 
 
 }

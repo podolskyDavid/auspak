@@ -339,42 +339,43 @@ export default function InteractiveMapOperator({ token }: { token: string }) {
   }
 
   return (
-    <div className={"relative text-2xl"}> {/* Add relative positioning here */}
+    <div
+      className="relative text-2xl overflow-auto flex items-center justify-center"> {/* Add relative positioning here */}
       <GoogleMap
         onClick={handleMapClick} // Add the onClick event handler here
         options={mapOptions}
         zoom={14}
         center={mapCenter}
         mapTypeId={google.maps.MapTypeId.ROADMAP}
-        mapContainerStyle={{ width: '1200px', height: '800px' }} // Ensure width has 'px'
+        mapContainerStyle={{width: '1300px', height: '800px'}} // Ensure width has 'px'
         onLoad={() => console.log('Map Component Loaded...')}
       >
-      {stopMarkers.map((markers, index) => (
-        <Marker key={index} position={markers.position} icon={markers.icon} />
-      ))}
-      {busMarkers.map((markers, index) => (
-        <Marker key={index} position={markers.position} icon={markers.icon} />
-      ))}
-      {latest_marker.length > 0 && latest_marker.map((marker, index) => (
-        <Marker key={index} position={marker.position} icon={marker.icon} />
-      ))}
+        {stopMarkers.map((markers, index) => (
+          <Marker key={index} position={markers.position} icon={markers.icon}/>
+        ))}
+        {busMarkers.map((markers, index) => (
+          <Marker key={index} position={markers.position} icon={markers.icon}/>
+        ))}
+        {latest_marker.length > 0 && latest_marker.map((marker, index) => (
+          <Marker key={index} position={marker.position} icon={marker.icon}/>
+        ))}
       </GoogleMap>
 
-      <div className={"absolute top-1/2 left-1/4 transform -translate-y-1/2 p-4"}>
-        <form className={"bg-white p-4 rounded shadow-lg"} onSubmit={handleSubmit}>
-          <div>
-            <label htmlFor="address">Address</label>
-            <input id="address" name="address" value={address} onChange={(e) => setAddress(e.target.value)} required />
+      <div className={"absolute top-24 left-0 transform -translate-y-1/2 p-4"}>
+        <form className={"bg-auspak-green p-4 rounded-lg shadow-lg"} onSubmit={handleSubmit}>
+          <div className="text-lg">
+            <label htmlFor="address">Address: </label>
+            <input className="bg-auspak-green" id="address" name="address" value={address} onChange={(e) => setAddress(e.target.value)} required/>
           </div>
-          <div>
-            <label htmlFor="type">Type</label>
-            <select id="type" name="type" required>
+          <div className="text-lg">
+            <label htmlFor="type">Type: </label>
+            <select className="bg-auspak-green" id="type" name="type" required>
               <option value="parcel_pickup">Parcel Pickup</option>
               <option value="parcel_dropoff">Parcel Drop Off</option>
 
             </select>
           </div>
-          <button type="submit">Save</button>
+          <button className="text-lg font-light rounded bg-auspak-dark-grey text-white pl-1 pr-1" type="submit">Save</button>
         </form>
       </div>
     </div>
