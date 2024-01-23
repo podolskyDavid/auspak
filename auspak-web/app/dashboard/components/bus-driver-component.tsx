@@ -1,8 +1,8 @@
 "use client"
 
 import {Button} from "@/components/ui/button";
-import React, { useEffect, useState } from "react";
-import { fetchData, sendData } from '../../services/apiService';
+import React, {useEffect, useState} from "react";
+import {fetchData, sendData} from '../../services/apiService';
 import * as z from "zod";
 import {useForm} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
@@ -12,8 +12,8 @@ import {Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover";
 import {cn} from "@/lib/utils";
 import {Check, ChevronsUpDown} from "lucide-react";
 import {Command, CommandEmpty, CommandGroup, CommandInput, CommandItem} from "@/components/ui/command";
-import { set } from "zod";
-import { useBusContext } from "./bus-context";
+import {set} from "zod";
+import {useBusContext} from "./bus-context";
 
 
 function mapStopEntity(stopEntity: string | undefined): string {
@@ -38,7 +38,7 @@ const formSchema = z.object({
   }),
 })
 
-export default function BusDriverDashboard({ token }: { token: string }) {
+export default function BusDriverDashboard({token}: { token: string }) {
 
   interface BusData {
     current_stop?: StopData;
@@ -69,7 +69,7 @@ export default function BusDriverDashboard({ token }: { token: string }) {
     setStartBusClicked(true);
 
     const endpoint = 'bus/start';
-    const params = { token: token, bus_id: values.busLine };
+    const params = {token: token, bus_id: values.busLine};
 
     // Send POST request
     const initialStopsResponse = await sendData(endpoint, params);
@@ -88,7 +88,7 @@ export default function BusDriverDashboard({ token }: { token: string }) {
 
   useEffect(() => {
     const loadData = async () => {
-      const busLinesResponse = await fetchData('bus/lines', { token: token });
+      const busLinesResponse = await fetchData('bus/lines', {token: token});
       const busLinesData = await busLinesResponse.json();
       if (!busLinesResponse.ok) {
         console.error("Couldn't fetch list of bus lines:", busLinesData);
@@ -107,7 +107,7 @@ export default function BusDriverDashboard({ token }: { token: string }) {
 
   useEffect(() => {
     const loadData = async () => {
-      const stopsResponse = await fetchData('bus/list_stops', { token: token });
+      const stopsResponse = await fetchData('bus/list_stops', {token: token});
       const stopsData = await stopsResponse.json();
       if (!stopsResponse.ok) {
         console.error("Couldn't fetch list of stops:", stopsData);
@@ -131,7 +131,7 @@ export default function BusDriverDashboard({ token }: { token: string }) {
     setStartBusClicked(true);
     try {
       const endpoint = 'bus/start';
-      const params = { token: token, bus_id: bus_id };
+      const params = {token: token, bus_id: bus_id};
 
       // Send POST request
       await sendData(endpoint, params);
@@ -148,11 +148,11 @@ export default function BusDriverDashboard({ token }: { token: string }) {
     setStopBusClicked(true);
     try {
       const endpoint = 'bus/stop';
-      const params = { token: token };
-  
+      const params = {token: token};
+
       // Send POST request
       await sendData(endpoint, params);
-  
+
       // Update state or perform other actions after a successful request
       setStopBusClicked(false);
 
@@ -166,11 +166,11 @@ export default function BusDriverDashboard({ token }: { token: string }) {
     setNextStopClicked(true);
     try {
       const endpoint = 'bus/next';
-      const params = { token: token };
-  
+      const params = {token: token};
+
       // Send POST request
       await sendData(endpoint, params);
-  
+
       // Update state or perform other actions after a successful request
       setNextStopClicked(false);
 
@@ -195,7 +195,7 @@ export default function BusDriverDashboard({ token }: { token: string }) {
                 <FormField
                   control={form.control}
                   name="busLine"
-                  render={({ field }) => (
+                  render={({field}) => (
                     <FormItem className="flex flex-col w-56">
                       <Popover>
                         <PopoverTrigger asChild>
@@ -208,18 +208,18 @@ export default function BusDriverDashboard({ token }: { token: string }) {
                                 !field.value && "text-muted-foreground"
                               )}
                             >
-                              {field.value
-                                ? busLines.find(
-                                  (busLine) => busLine === field.value.toString()
-                                )?.toString()
-                                : "Select a line"}
-                              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                              {field.value && busLines.find(
+                                (busLine) =>
+                                  //@ts-ignore
+                                  busLine === field.value
+                              )?.toString() || "Select a line"}
+                              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50"/>
                             </Button>
                           </FormControl>
                         </PopoverTrigger>
                         <PopoverContent className="p-0">
                           <Command>
-                            <CommandInput placeholder="Search a line..." />
+                            <CommandInput placeholder="Search a line..."/>
                             <CommandEmpty>No bus line found.</CommandEmpty>
                             <CommandGroup>
                               {busLines.map((busLine) => (
@@ -227,13 +227,16 @@ export default function BusDriverDashboard({ token }: { token: string }) {
                                   value={busLine}
                                   key={busLine}
                                   onSelect={() => {
-                                    form.setValue("busLine", Number(busLine))
+                                    form.setValue("busLine",
+                                      //@ts-ignore
+                                      busLine)
                                   }}
                                 >
                                   <Check
                                     className={cn(
                                       "mr-2 h-4 w-4",
-                                      busLine === field.value.toString()
+                                      //@ts-ignore
+                                      field.value && busLine === field.value
                                         ? "opacity-100"
                                         : "opacity-0"
                                     )}
@@ -245,7 +248,7 @@ export default function BusDriverDashboard({ token }: { token: string }) {
                           </Command>
                         </PopoverContent>
                       </Popover>
-                      <FormMessage />
+                      <FormMessage/>
                     </FormItem>
                   )}
                 />
@@ -271,10 +274,10 @@ export default function BusDriverDashboard({ token }: { token: string }) {
         </div>
         <div className="flex gap-4">
           <Button onClick={() => handleNextStop()} className="w-56" disabled={nextStopClicked}>
-            {nextStopClicked ? "Moving the bus...":"Next stop"}
+            {nextStopClicked ? "Moving the bus..." : "Next stop"}
           </Button>
           <Button onClick={() => handleStopBus()} className="w-56" disabled={stopBusClicked}>
-            {stopBusClicked ? "Stopping the bus...":"Stop the bus"}
+            {stopBusClicked ? "Stopping the bus..." : "Stop the bus"}
           </Button>
         </div>
       </div>
