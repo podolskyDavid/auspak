@@ -4,9 +4,10 @@ import { GoogleMap, Marker, useLoadScript, DirectionsRenderer } from '@react-goo
 //import type { NextPage } from 'next';
 //import styles from '../styles/Home.module.css';
 import { useEffect, useMemo, useState } from 'react';
-import {sendData, fetchData} from '../../services/apiService';
+import { sendData, fetchData } from '../../services/apiService';
 import { ShowerHead } from 'lucide-react';
 import { set } from 'react-hook-form';
+import { Button } from "@/components/ui/button";
 
 
 export default function InteractiveMapPassenger({ token }: { token: string }) {
@@ -409,8 +410,17 @@ export default function InteractiveMapPassenger({ token }: { token: string }) {
         {busNumber != null ? (
         <p>{`Bus ${busNumber} ${busStarted ? 'is' : 'will soon be'} on its way`}</p>
         ) : (
-          <p>{`Select location and request pickup`}</p>
-        )}
+            <Button
+              className="flex gap-4"
+              onClick={handleButton}
+              disabled={buttonClicked}
+             >
+              <div>
+                Select pickup location and press this button
+              </div>
+            </Button>
+        )
+        }
       </div>
       <GoogleMap
         onClick={handleMapClick} // Add the onClick event handler here
@@ -446,17 +456,6 @@ export default function InteractiveMapPassenger({ token }: { token: string }) {
           />
         )}
       </GoogleMap>
-      {busNumber == null && (
-        <button
-          className="absolute top-1/2 left-1/2 z-10 flex flex-col mt-4 mb-4 gap-4 min-w-96 transform -translate-x-1/2 -translate-y-1/2 bg-auspak-dark-grey text-white p-2"
-          onClick={handleButton}
-          disabled={buttonClicked}
-          style={{ margin: '10px' }}>
-          <div className="text-2xl font-bold">
-            Order Bus
-          </div>
-        </button>
-      )}
     </div>
   );  
 };
