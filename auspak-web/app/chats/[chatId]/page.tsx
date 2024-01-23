@@ -73,7 +73,7 @@ export default function ChatInterface({params}: { params: { chatId: string } }) 
   const [myId, setMyId] = useState<number>(0);
   const [chatHistoryData, setChatHistoryData] = useState<Chat[]>([]);
   const messagesEndRef = useRef<null | HTMLDivElement>(null);
-
+  const [name, setName] = useState<string>('');
 
   useEffect(() => {
     const loadData = async (storedToken: string) => {
@@ -112,9 +112,9 @@ export default function ChatInterface({params}: { params: { chatId: string } }) 
       console.log("Chat ID: ", params.chatId, "Token: ", storedToken)
       const response = await fetchData(`chats/history/${params.chatId}`, {token: storedToken});
       const data = await response.json();
-      setChatHistoryData(data);
       console.log("Chat meta data:", data);
-
+      setChatHistoryData(data.data);
+      setName(data.name);
     };
 
     // Check if running in the browser environment
@@ -194,7 +194,7 @@ export default function ChatInterface({params}: { params: { chatId: string } }) 
         <Sidebar fullName={fullName} userEntity={userEntity.charAt(0).toUpperCase() + userEntity.slice(1)}/>
         <div className="bg-auspak-white h-screen w-screen gap-4 p-6 flex flex-col justify-between">
           <div className="text-3xl font-bold">
-            Chat with {params.chatId}
+            Chat with {name}
           </div>
 
           <div className="flex flex-col gap-4 max-h-full overflow-y-auto">
