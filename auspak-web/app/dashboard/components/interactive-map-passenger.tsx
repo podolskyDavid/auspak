@@ -334,12 +334,13 @@ export default function InteractiveMapPassenger({ token }: { token: string }) {
       );
     }
   }
-  }, [isLoaded, stopMarkers]);
+  }, [isLoaded, stopMarkers, buttonClicked]);
 
   if (!isLoaded) {
     return <p>Loading...</p>;
   }
 
+  
   const handleMapClick = async (event: google.maps.MapMouseEvent) => {
     // Get latitude and longitude from the map click event
     if (event.latLng) {
@@ -363,6 +364,7 @@ export default function InteractiveMapPassenger({ token }: { token: string }) {
   }
 
   const handleButton = async () => {
+    setButtonClicked(true);
     console.log('Button clicked!');
     try {
       const endpoint = "stops";

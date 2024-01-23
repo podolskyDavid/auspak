@@ -4,10 +4,13 @@ import { GoogleMap, Marker, useLoadScript, Polyline, DirectionsRenderer, Directi
 import { useEffect, useMemo, useState } from 'react';
 import {sendData, fetchData} from '../../services/apiService';
 import { ShowerHead } from 'lucide-react';
+import { useBusContext } from './bus-context';
 
 
 
 export default function InteractiveMapDriver({ token }: { token: string }) {
+
+
   const libraries = useMemo(() => ['places'], []);
 
 
@@ -22,9 +25,17 @@ export default function InteractiveMapDriver({ token }: { token: string }) {
   const [long, setLong] = useState(0);
   const [lat, setLat] = useState(0);
 
-  
+
+
+
+  const busContext = useBusContext();
+  const [startBusClicked, setStartBusClicked] = [busContext.startBusClicked, busContext.setStartBusClicked];
+  const [stopBusClicked, setStopBusClicked] = [busContext.stopBusClicked, busContext.setStopBusClicked];
+  const [nextStopClicked, setNextStopClicked] = [busContext.nextStopClicked, busContext.setNextStopClicked];
   const [stopMarkers, setStopMarkers] = useState<MarkerType[]>([]);
   const [busMarkers, setBusMarkers] = useState<MarkerType[]>([]);
+
+
 
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY as any,
@@ -77,7 +88,7 @@ export default function InteractiveMapDriver({ token }: { token: string }) {
       }
     };
     loadData();
-  }, [token]);
+  }, [token, startBusClicked, nextStopClicked, stopBusClicked]);
 
   const mapCenter = useMemo(
     () => ({ lat: 48.1351, lng: 11.5820 }),
@@ -293,7 +304,8 @@ export default function InteractiveMapDriver({ token }: { token: string }) {
   );
 
   useEffect(() => {
-    if (isLoaded) {
+    
+    if (stopMarkers.length > 0 && isLoaded) {
     const directionsService = new google.maps.DirectionsService();
     const origin = stopMarkers[0]?.position; // Assuming the first marker is the start
     const destination = stopMarkers[stopMarkers.length - 1]?.position; // Assuming the last marker is the end
@@ -323,7 +335,8 @@ export default function InteractiveMapDriver({ token }: { token: string }) {
     return <p>Loading...</p>;
   }
 
-  const path = stopMarkers.map(marker => marker.position);
+
+
 
   return (
     <div className="relative text-2xl overflow-auto flex items-center justify-center"> {/* Add relative positioning here */}
@@ -342,22 +355,6 @@ export default function InteractiveMapDriver({ token }: { token: string }) {
         {busMarkers.map((marker, index) => (
           <Marker key={index} position={marker.position} icon={marker.icon} />
         ))}
-        {/* <Polyline
-          path={path}
-          options={{
-            strokeColor: '#FF0000',
-            strokeOpacity: 0.8,
-            strokeWeight: 2,
-            fillColor: '#FF0000',
-            fillOpacity: 0.35,
-            clickable: false,
-            draggable: false,
-            editable: false,
-            visible: true,
-            radius: 30000,
-            zIndex: 1
-          }}
-        /> */}
 
         {directionsResponse && (
           <DirectionsRenderer
